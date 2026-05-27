@@ -12,7 +12,7 @@ from .ajax import (
 from .receipt import ReceiptDetailView
 from .kitchen import KitchenDashboardView, update_item_status, get_active_orders_json
 from .inventory import (
-    IngredientListView, IngredientCreateView, IngredientUpdateView, IngredientDeleteView, update_stock
+    IngredientListView, IngredientDetailView, IngredientCreateView, IngredientUpdateView, IngredientDeleteView, update_stock
 )
 from .reports import ReportsDashboardView, export_sales_csv
 from .reservation import (

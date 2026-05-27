@@ -34,6 +34,7 @@ urlpatterns = [
     # Inventory CRUD
     path('inventory/', views.IngredientListView.as_view(), name='ingredient_list'),
     path('inventory/add/', views.IngredientCreateView.as_view(), name='ingredient_add'),
+    path('inventory/<int:pk>/', views.IngredientDetailView.as_view(), name='ingredient_detail'),
     path('inventory/<int:pk>/edit/', views.IngredientUpdateView.as_view(), name='ingredient_edit'),
     path('inventory/<int:pk>/delete/', views.IngredientDeleteView.as_view(), name='ingredient_delete'),
     path('inventory/update-stock/<int:pk>/', views.update_stock, name='update_stock'),

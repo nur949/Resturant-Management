@@ -1,103 +1,172 @@
 {% extends 'core/base.html' %}
 {% load inventory_extras %}
 
-{% block page_title %}INVENTORY_STOCK{% endblock %}
+{% block page_title %}Inventory & Stock{% endblock %}
 
 {% block content %}
-<!-- Minimal Stats -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-0 border-t border-l border-black mb-8">
-    <div class="p-4 border-r border-b border-black">
-        <div class="text-[10px] font-bold text-gray-500 uppercase">TOTAL_ITEMS</div>
-        <div class="text-xl font-bold">{{ ingredients.count }}</div>
+<!-- Stats Overview -->
+<div class="row g-4 mb-6">
+    <div class="col-12 col-md-4">
+        <div class="card elevation-1 border-0 h-100">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-primary bg-opacity-5 p-2 rounded-full flex items-center justify-center me-3">
+                        <span class="material-symbols-outlined text-primary">category</span>
+                    </div>
+                    <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">Total Inventory Items</span>
+                </div>
+                <h3 class="fw-bold mb-0 text-gray-800">{{ ingredients.count }}</h3>
+            </div>
+        </div>
     </div>
-    <div class="p-4 border-r border-b border-black {% if low_stock_count > 0 %}bg-red-600 text-white{% endif %}">
-        <div class="text-[10px] font-bold {% if low_stock_count > 0 %}text-white{% else %}text-gray-500{% endif %} uppercase">LOW_STOCK_ALERTS</div>
-        <div class="text-xl font-bold">{{ low_stock_count }}</div>
+    <div class="col-12 col-md-4">
+        <div class="card elevation-1 border-0 h-100 {% if low_stock_count > 0 %}border-start border-4 border-danger{% endif %}">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="{% if low_stock_count > 0 %}bg-red-50{% else %}bg-gray-50{% endif %} p-2 rounded-full flex items-center justify-center me-3">
+                        <span class="material-symbols-outlined {% if low_stock_count > 0 %}text-red-600{% else %}text-gray-400{% endif %}">warning</span>
+                    </div>
+                    <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">Low Stock Alerts</span>
+                </div>
+                <h3 class="fw-bold mb-0 {% if low_stock_count > 0 %}text-red-600{% else %}text-gray-800{% endif %}">{{ low_stock_count }}</h3>
+            </div>
+        </div>
     </div>
-    <div class="p-4 border-r border-b border-black">
-        <div class="text-[10px] font-bold text-gray-500 uppercase">ASSET_VALUE</div>
-        <div class="text-xl font-bold">${{ total_inventory_value|floatformat:2 }}</div>
+    <div class="col-12 col-md-4">
+        <div class="card elevation-1 border-0 h-100">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-green-50 p-2 rounded-full flex items-center justify-center me-3">
+                        <span class="material-symbols-outlined text-green-600">account_balance_wallet</span>
+                    </div>
+                    <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">Total Asset Value</span>
+                </div>
+                <h3 class="fw-bold mb-0 text-gray-800">${{ total_inventory_value|floatformat:2 }}</h3>
+            </div>
+        </div>
     </div>
 </div>
 
-<div class="mb-6">
-    <a href="{% url 'ingredient_add' %}" class="px-4 py-2 bg-black text-white text-[10px] font-bold uppercase hover:bg-gray-800 transition-colors">
-        + NEW_INGREDIENT
+<div class="d-flex justify-content-between align-items-center mb-6">
+    <h5 class="mb-0 fw-bold text-gray-800">Operational Ledger</h5>
+    <a href="{% url 'ingredient_add' %}" class="btn btn-mui-primary flex items-center">
+        <span class="material-symbols-outlined me-2">add_circle</span> New Ingredient
     </a>
 </div>
 
-<!-- Simple Table -->
-<div class="border border-black overflow-hidden">
-    <table class="w-full text-left text-[10px] border-collapse">
-        <thead>
-            <tr class="bg-gray-50 border-b border-black">
-                <th class="p-2 font-bold border-r border-black uppercase">ITEM_NAME</th>
-                <th class="p-2 font-bold border-r border-black uppercase">STATUS</th>
-                <th class="p-2 font-bold border-r border-black uppercase">QUANTITY</th>
-                <th class="p-2 font-bold border-r border-black uppercase">COST_UNIT</th>
-                <th class="p-2 font-bold border-r border-black uppercase">NET_VAL</th>
-                <th class="p-2 font-bold uppercase">ACTIONS</th>
-            </tr>
-        </thead>
-        <tbody class="divide-y divide-black">
-            {% for item in ingredients %}
-            <tr class="{% if item.stock_status == 'out_of_stock' %}bg-red-50 text-red-800{% elif item.stock_status == 'low_stock' %}bg-yellow-50{% endif %}">
-                <td class="p-2 border-r border-black font-bold uppercase">
-                    {{ item.name }}<br>
-                    <span class="text-[8px] text-gray-400 font-normal">#STK-{{ item.id|stringformat:"04d" }}</span>
-                </td>
-                <td class="p-2 border-r border-black">
-                    <span class="px-1 border border-black uppercase font-bold text-[9px]">
-                        {{ item.get_stock_status_display|upper }}
-                    </span>
-                </td>
-                <td class="p-2 border-r border-black font-bold">{{ item.current_stock }} {{ item.get_unit_display|upper }}</td>
-                <td class="p-2 border-r border-black">${{ item.cost_per_unit }}</td>
-                <td class="p-2 border-r border-black font-bold">${{ item.current_stock|multiply:item.cost_per_unit|floatformat:2 }}</td>
-                <td class="p-2 space-x-2">
-                    <button class="underline uppercase font-bold" onclick="openLedgerModal('{{ item.id }}', '{{ item.name }}', '{{ item.get_unit_display }}')">[UPDATE]</button>
-                    <a href="{% url 'ingredient_edit' item.id %}" class="underline uppercase font-bold">[EDIT]</a>
-                    <a href="{% url 'ingredient_delete' item.id %}" class="underline uppercase font-bold text-red-600">[DEL]</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<!-- Stock Table -->
+<div class="card elevation-1 border-0 overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="ps-4 py-3 border-0 text-xs font-medium text-gray-500 uppercase">Item Name</th>
+                    <th class="py-3 border-0 text-xs font-medium text-gray-500 uppercase">Status</th>
+                    <th class="py-3 border-0 text-xs font-medium text-gray-500 uppercase">Current Stock</th>
+                    <th class="py-3 border-0 text-xs font-medium text-gray-500 uppercase">Cost/Unit</th>
+                    <th class="py-3 border-0 text-xs font-medium text-gray-500 uppercase">Net Value</th>
+                    <th class="pe-4 py-3 border-0 text-xs font-medium text-gray-500 uppercase text-end">Operations</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for item in ingredients %}
+                <tr>
+                    <td class="ps-4">
+                        <div class="d-flex flex-column">
+                            <a href="{% url 'ingredient_detail' item.id %}" class="text-sm font-bold text-primary text-decoration-none hover-underline uppercase">
+                                {{ item.name }}
+                            </a>
+                            <span class="text-xs text-gray-400 font-medium">#STK-{{ item.id|stringformat:"04d" }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        {% if item.stock_status == 'out_of_stock' %}
+                            <span class="badge bg-red-50 text-red-700 border-0 px-2 py-1 rounded text-xs font-bold">OUT OF STOCK</span>
+                        {% elif item.stock_status == 'low_stock' %}
+                            <span class="badge bg-amber-50 text-amber-700 border-0 px-2 py-1 rounded text-xs font-bold">LOW STOCK</span>
+                        {% else %}
+                            <span class="badge bg-green-50 text-green-700 border-0 px-2 py-1 rounded text-xs font-bold">IN STOCK</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="text-sm font-bold text-gray-700">{{ item.current_stock }} {{ item.get_unit_display|upper }}</span>
+                    </td>
+                    <td>
+                        <span class="text-sm text-gray-600">${{ item.cost_per_unit }}</span>
+                    </td>
+                    <td>
+                        <span class="text-sm font-black text-gray-800">${{ item.current_stock|multiply:item.cost_per_unit|floatformat:2 }}</span>
+                    </td>
+                    <td class="pe-4 text-end">
+                        <div class="d-flex justify-content-end gap-1">
+                            <button class="btn btn-sm btn-light rounded-pill px-3 fw-bold text-xs d-flex align-items-center gap-1" 
+                                    onclick="openLedgerModal('{{ item.id }}', '{{ item.name }}', '{{ item.get_unit_display }}')">
+                                <span class="material-symbols-outlined" style="font-size: 16px;">history_edu</span> Ledger
+                            </button>
+                            <a href="{% url 'ingredient_edit' item.id %}" class="btn btn-sm btn-light rounded-full p-2 text-gray-600 hover:text-primary">
+                                <span class="material-symbols-outlined" style="font-size: 20px;">edit</span>
+                            </a>
+                            <a href="{% url 'ingredient_delete' item.id %}" class="btn btn-sm btn-light rounded-full p-2 text-gray-600 hover:text-danger">
+                                <span class="material-symbols-outlined" style="font-size: 20px;">delete</span>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 
-<!-- Minimal Ledger Modal -->
-<div id="ledgerModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-    <div class="bg-white border border-black w-full max-w-xs">
-        <div class="p-3 bg-black text-white flex justify-between items-center">
-            <span class="text-[10px] font-bold uppercase" id="modalTitle">LEDGER_UPDATE</span>
-            <button onclick="closeLedgerModal()" class="text-white hover:text-gray-300">
-                <i class="fas fa-times"></i>
+<!-- MUI Transaction Modal -->
+<div id="ledgerModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+    <div class="card elevation-24 border-0 w-full max-w-md animate-fade-in">
+        <div class="card-header bg-white py-4 border-bottom d-flex justify-content-between align-items-center px-4">
+            <div class="d-flex align-items-center">
+                <span class="material-symbols-outlined text-primary me-2">receipt_long</span>
+                <h6 class="mb-0 fw-bold text-gray-800" id="modalTitle">Ledger Update</h6>
+            </div>
+            <button onclick="closeLedgerModal()" class="btn btn-light rounded-full p-1 flex items-center justify-center">
+                <span class="material-symbols-outlined text-gray-400">close</span>
             </button>
         </div>
-        <form id="ledgerForm" method="post" class="p-4 space-y-4">
+        <form id="ledgerForm" method="post" class="card-body p-4">
             {% csrf_token %}
-            <div>
-                <label class="block text-[9px] font-bold uppercase mb-1">TX_TYPE</label>
-                <select name="action_type" class="w-full border border-black p-1.5 text-xs font-bold bg-white outline-none">
+            <div class="mb-4">
+                <label class="form-label text-xs fw-bold text-gray-500 uppercase tracking-widest mb-2 ms-1">Transaction Type</label>
+                <select name="action_type" class="form-select border-0 bg-gray-50 rounded-pill px-4 py-2 text-sm font-medium shadow-none">
                     <option value="purchase">PURCHASE (+)</option>
                     <option value="waste">WASTE (-)</option>
-                    <option value="adjustment">MANUAL_SET</option>
+                    <option value="adjustment">DIRECT_ADJUSTMENT</option>
                 </select>
             </div>
-            <div>
-                <label class="block text-[9px] font-bold uppercase mb-1">QUANTITY (<span id="unitSpan"></span>)</label>
-                <input type="number" name="amount" step="0.001" class="w-full border border-black p-1.5 text-xs font-bold outline-none" placeholder="0.000" required>
+            <div class="mb-4">
+                <label class="form-label text-xs fw-bold text-gray-500 uppercase tracking-widest mb-2 ms-1">Quantity (<span id="unitSpan"></span>)</label>
+                <input type="number" name="amount" step="0.001" class="form-control border-0 bg-gray-50 rounded-pill px-4 py-2 text-sm font-bold shadow-none" placeholder="0.000" required>
             </div>
-            <div>
-                <label class="block text-[9px] font-bold uppercase mb-1">NOTES</label>
-                <textarea name="notes" class="w-full border border-black p-1.5 text-xs font-bold outline-none" rows="2"></textarea>
+            <div class="mb-4">
+                <label class="form-label text-xs fw-bold text-gray-500 uppercase tracking-widest mb-2 ms-1">Audit Notes</label>
+                <textarea name="notes" class="form-control border-0 bg-gray-50 rounded-lg px-4 py-2 text-sm font-medium shadow-none" rows="3" placeholder="Explain the reasoning for this transaction..."></textarea>
             </div>
-            <button type="submit" class="w-full bg-black text-white p-2 text-[10px] font-bold uppercase hover:bg-gray-800 transition-colors">
-                CONFIRM_TRANSACTION
-            </button>
+            <div class="d-grid pt-2">
+                <button type="submit" class="btn btn-mui-primary py-3">
+                    <span class="material-symbols-outlined align-middle me-2">verified</span> Post Transaction
+                </button>
+            </div>
         </form>
     </div>
 </div>
+
+<style>
+    .animate-fade-in { animation: fadeIn 0.3s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .form-select:focus, .form-control:focus {
+        background-color: #ffffff;
+        border: 1px solid var(--mui-primary);
+        box-shadow: 0 0 0 4px rgba(25, 118, 210, 0.1);
+    }
+</style>
 
 <script>
     function openLedgerModal(id, name, unit) {
@@ -114,3 +183,4 @@
     }
 </script>
 {% endblock %}
+
