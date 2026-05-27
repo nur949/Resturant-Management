@@ -5,6 +5,33 @@ from django.db.models import Sum, Count
 from django.utils import timezone
 from datetime import timedelta
 
+import csv
+from django.http import HttpResponse
+
+def export_sales_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="sales_report.csv"'
+    
+    writer = csv.writer(response)
+    writer.writerow(['Invoice', 'Date', 'Table', 'Staff', 'Status', 'Subtotal', 'Tax', 'Total'])
+    
+    last_30_days = timezone.now().date() - timedelta(days=30)
+    orders = Order.objects.filter(created_at__date__gte=last_30_days).order_by('-created_at')
+    
+    for order in orders:
+        writer.writerow([
+            order.invoice_number,
+            order.created_at.strftime('%Y-%m-%d %H:%M'),
+            f"Table {order.table.number}",
+            order.staff.username if order.staff else 'System',
+            order.get_status_display(),
+            order.subtotal,
+            order.tax_amount,
+            order.total_price
+        ])
+    
+    return response
+
 class ReportsDashboardView(LoginRequiredMixin, TemplateView):
     template_name = 'core/reports.html'
 

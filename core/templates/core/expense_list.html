@@ -3,57 +3,87 @@
 {% block page_title %}Corporate Expenditure Ledger{% endblock %}
 
 {% block content %}
-<div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
-    <a href="{% url 'expense_add' %}" class="btn-pro-primary">
-        <i class="fas fa-file-invoice-dollar mr-2"></i> RECORD EXPENDITURE
-    </a>
-    <div class="flex items-center space-x-4">
-        <div class="relative group">
-            <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-            <input type="text" id="expenseSearch" placeholder="Audit logs..." class="input-pro pl-12 w-64">
+<div class="row g-4 align-items-center mb-6">
+    <div class="col-12 col-md-auto">
+        <a href="{% url 'expense_add' %}" class="btn btn-mui-primary flex items-center px-4">
+            <span class="material-symbols-outlined me-2">receipt_long</span> Record Expenditure
+        </a>
+    </div>
+    <div class="col-12 col-md flex-grow-1">
+        <div class="input-group elevation-0 border rounded-pill overflow-hidden bg-white">
+            <span class="input-group-text bg-transparent border-0 text-gray-400 ps-4">
+                <span class="material-symbols-outlined">search</span>
+            </span>
+            <input type="text" id="expenseSearch" placeholder="Audit financial logs..." 
+                   class="form-control border-0 bg-transparent shadow-none py-2 text-sm">
         </div>
     </div>
 </div>
 
-<div class="card bg-white dark:bg-charcoal rounded-[40px] border-2 border-slate-100 dark:border-white/10 overflow-hidden shadow-sm">
-    <div class="overflow-x-auto">
-        <table class="premium-table">
-            <thead>
+<div class="card elevation-1 border-0 overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-gray-50">
                 <tr>
-                    <th>Entry Date</th>
-                    <th>Asset Category</th>
-                    <th>Financial Value</th>
-                    <th>Memo / Description</th>
-                    <th class="text-right">Intelligence Actions</th>
+                    <th class="ps-4 py-3 border-0 text-xs font-medium text-gray-500 uppercase">Entry Date</th>
+                    <th class="py-3 border-0 text-xs font-medium text-gray-500 uppercase">Asset Category</th>
+                    <th class="py-3 border-0 text-xs font-medium text-gray-500 uppercase">Financial Value</th>
+                    <th class="py-3 border-0 text-xs font-medium text-gray-500 uppercase">Memo / Description</th>
+                    <th class="pe-4 py-3 border-0 text-xs font-medium text-gray-500 uppercase text-end">Actions</th>
                 </tr>
             </thead>
-            <tbody id="expenseTable">
+            <tbody id="expenseTable" class="divide-y divide-gray-100">
                 {% for expense in expenses %}
-                <tr class="group">
-                    <td>
-                        <span class="text-xs font-black text-slate-400 uppercase tracking-tighter">{{ expense.date|date:"d M Y" }}</span>
+                <tr>
+                    <td class="ps-4">
+                        <span class="text-sm font-medium text-gray-600">{{ expense.date|date:"d M Y" }}</span>
                     </td>
                     <td>
-                        <span class="badge-pro badge-pro-amber">{{ expense.get_category_display }}</span>
+                        <span class="badge bg-amber-50 text-amber-700 border-0 px-2 py-1 rounded text-xs font-medium">
+                            {{ expense.get_category_display }}
+                        </span>
                     </td>
                     <td>
-                        <span class="text-sm font-black text-rose tracking-tighter">-${{ expense.amount|floatformat:2 }}</span>
+                        <span class="text-sm font-bold text-red-600">-${{ expense.amount|floatformat:2 }}</span>
                     </td>
                     <td>
-                        <span class="text-xs text-slate-500 font-medium italic">{{ expense.description|default:"Standard operational cost"|truncatechars:45 }}</span>
+                        <span class="text-xs text-gray-500 italic">{{ expense.description|default:"Standard operational cost"|truncatechars:45 }}</span>
                     </td>
-                    <td class="text-right">
-                        <div class="flex justify-end items-center gap-3">
-                            <a href="{% url 'expense_edit' expense.id %}" class="w-10 h-10 rounded-2xl bg-slate-50 dark:bg-white/5 flex items-center justify-center text-slate-400 hover:bg-primary/10 hover:text-primary transition-all"><i class="fas fa-edit text-xs"></i></a>
-                            <a href="{% url 'expense_delete' expense.id %}" class="w-10 h-10 rounded-2xl bg-slate-50 dark:bg-white/5 flex items-center justify-center text-slate-400 hover:bg-rose/10 hover:text-rose transition-all"><i class="fas fa-trash text-xs"></i></a>
+                    <td class="pe-4 text-end">
+                        <div class="d-flex justify-content-end gap-1">
+                            <a href="{% url 'expense_edit' expense.id %}" class="btn btn-sm btn-light rounded-full p-2 text-gray-600 hover:text-primary" title="Edit Record">
+                                <span class="material-symbols-outlined" style="font-size: 20px;">edit</span>
+                            </a>
+                            <a href="{% url 'expense_delete' expense.id %}" class="btn btn-sm btn-light rounded-full p-2 text-gray-600 hover:text-danger" title="Delete Record">
+                                <span class="material-symbols-outlined" style="font-size: 20px;">delete</span>
+                            </a>
                         </div>
                     </td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="5" class="text-center py-20 text-slate-400 font-bold uppercase tracking-widest text-[10px]">No records found in current ledger</td></tr>
+                <tr>
+                    <td colspan="5" class="text-center py-5">
+                        <div class="p-5">
+                            <span class="material-symbols-outlined text-gray-200" style="font-size: 64px;">account_balance_wallet</span>
+                            <p class="text-gray-400 mt-3 fw-medium">No records found in current ledger</p>
+                        </div>
+                    </td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
+
+<script>
+    document.getElementById('expenseSearch').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const rows = document.querySelectorAll('#expenseTable tr');
+        rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            row.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+    });
+</script>
 {% endblock %}
+

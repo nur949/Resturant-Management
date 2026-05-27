@@ -15,6 +15,33 @@ class KitchenDashboardView(LoginRequiredMixin, ListView):
             status__in=['pending', 'cooking', 'served']
         ).exclude(status='paid').order_by('created_at')
 
+def get_active_orders_json(request):
+    active_orders = Order.objects.filter(
+        status__in=['pending', 'cooking', 'served']
+    ).exclude(status='paid').order_by('created_at')
+    
+    orders_data = []
+    for order in active_orders:
+        items = []
+        for item in order.items.all():
+            items.append({
+                'id': item.id,
+                'name': item.menu_item.name,
+                'quantity': item.quantity,
+                'status': item.status,
+            })
+        
+        orders_data.append({
+            'id': order.id,
+            'table_number': order.table.number,
+            'created_at': order.created_at.isoformat(),
+            'status': order.get_status_display(),
+            'staff': order.staff.username if order.staff else 'System',
+            'items': items
+        })
+    
+    return JsonResponse({'status': 'success', 'orders': orders_data})
+
 def update_item_status(request):
     if request.method == 'POST':
         item_id = request.POST.get('item_id')

@@ -140,3 +140,21 @@ class ReservationForm(forms.ModelForm):
             'status': forms.Select(attrs={'class': 'form-control'}),
             'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        table = cleaned_data.get('table')
+        date = cleaned_data.get('date')
+        time = cleaned_data.get('time')
+
+        if table and date and time:
+            overlap = Reservation.objects.filter(
+                table=table,
+                date=date,
+                time=time
+            ).exclude(pk=self.instance.pk if self.instance else None)
+
+            if overlap.exists():
+                raise forms.ValidationError(f"Table {table.number} is already reserved for this date and time.")
+        
+        return cleaned_data

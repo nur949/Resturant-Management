@@ -3,30 +3,35 @@
 {% block page_title %}Security Protocol: Termination Confirmation{% endblock %}
 
 {% block content %}
-<div class="max-w-md mx-auto">
-    <div class="card bg-white dark:bg-charcoal border border-crimson/20 rounded-[32px] overflow-hidden shadow-2xl">
-        <div class="p-8 text-center bg-crimson/5">
-            <div class="w-16 h-16 bg-crimson/10 text-crimson rounded-full flex items-center justify-center mx-auto mb-6">
-                <i class="fas fa-exclamation-triangle text-2xl"></i>
+<div class="row justify-content-center pt-5">
+    <div class="col-12 col-md-6 col-lg-5">
+        <div class="card elevation-4 border-0 overflow-hidden">
+            <div class="card-header bg-red-50 py-5 border-0 text-center">
+                <div class="w-16 h-16 bg-red-100 text-red-600 rounded-circle d-flex align-items-center justify-center mx-auto mb-3 elevation-1">
+                    <span class="material-symbols-outlined text-3xl">warning</span>
+                </div>
+                <h4 class="fw-bold text-gray-800 mb-1">Destructive Action</h4>
+                <p class="text-xs text-red-600 font-bold uppercase tracking-widest mb-0">Authorized Personnel Only</p>
             </div>
-            <h3 class="text-xl font-black tracking-tight text-slate-900 dark:text-white">Destructive Action</h3>
-            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Authorized Personnel Only</p>
-        </div>
-        <div class="p-8 text-center">
-            <p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-8">
-                You are about to permanently purge <span class="font-black text-slate-900 dark:text-white">"{{ object }}"</span> from the system. This action is recorded in the audit ledger and <span class="text-crimson font-bold italic">cannot be undone.</span>
-            </p>
-            
-            <form method="post" class="space-y-4">
-                {% csrf_token %}
-                <button type="submit" class="w-full py-4 bg-crimson text-white rounded-2xl font-black text-xs shadow-lg shadow-crimson/20 hover:opacity-90 active:scale-95 transition-all">
-                    CONFIRM TERMINATION
-                </button>
-                <a href="javascript:history.back()" class="w-full py-4 bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-white rounded-2xl font-black text-xs flex items-center justify-center hover:bg-slate-200 transition-all">
-                    ABORT & RETURN
-                </a>
-            </form>
+            <div class="card-body p-4 p-md-5 text-center">
+                <p class="text-gray-600 text-sm mb-5 leading-relaxed">
+                    You are about to permanently purge <span class="fw-bold text-gray-900">"{{ object }}"</span> from the system. This action is recorded in the audit ledger and <span class="text-red-600 fw-bold fst-italic">cannot be undone.</span>
+                </p>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-grid gap-3">
+                        <button type="submit" class="btn btn-danger py-3 rounded-pill fw-bold text-xs elevation-2 hover-elevation-4 transition-all">
+                            CONFIRM TERMINATION
+                        </button>
+                        <a href="javascript:history.back()" class="btn btn-light py-3 rounded-pill fw-bold text-xs text-gray-500 d-flex align-items-center justify-center border transition-all">
+                            <span class="material-symbols-outlined me-2 text-sm">arrow_back</span> ABORT & RETURN
+                        </a>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
 {% endblock %}
+

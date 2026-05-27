@@ -46,6 +46,7 @@ urlpatterns = [
     
     # Reports
     path('reports/', views.ReportsDashboardView.as_view(), name='reports'),
+    path('reports/export/csv/', views.export_sales_csv, name='export_sales_csv'),
     
     # Reservations CRUD
     path('reservations/', views.ReservationListView.as_view(), name='reservation_list'),
@@ -72,8 +73,13 @@ urlpatterns = [
 
     # AJAX paths
     path('ajax/add-order-item/', views.add_order_item, name='add_order_item'),
+    path('ajax/update-cart-item/', views.update_cart_item, name='update_cart_item'),
+    path('ajax/get-cart-details/<int:order_id>/', views.get_cart_details, name='get_cart_details'),
     path('ajax/update-order-status/', views.update_order_status, name='update_order_status'),
     path('ajax/update-item-status/', views.update_item_status, name='update_item_status'),
+    path('ajax/get-active-orders/', views.get_active_orders_json, name='get_active_orders'),
+    path('ajax/toggle-user-status/', views.toggle_user_status, name='toggle_user_status'),
+    path('ajax/reset-user-password/', views.reset_user_password, name='reset_user_password'),
     
     # Notifications
     path('ajax/notifications/', views.get_notifications, name='get_notifications'),

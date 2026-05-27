@@ -1,86 +1,208 @@
 {% extends 'core/base.html' %}
 
-{% block page_title %}SYSTEM_CONFIG{% endblock %}
+{% block page_title %}System Config{% endblock %}
 
 {% block content %}
-<div class="space-y-8">
+<div class="row g-4">
     <!-- Restaurant Identity -->
-    <div class="border border-black">
-        <div class="p-3 bg-black text-white flex justify-between items-center">
-            <span class="text-xs font-bold uppercase">RESTAURANT_IDENTITY</span>
-            <a href="{% url 'settings_update' %}" class="text-[10px] font-bold underline text-white">[EDIT]</a>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 border-t border-black">
-            <div class="p-4 border-r border-b border-black md:border-b-0">
-                <div class="text-[9px] font-bold text-gray-500">NAME</div>
-                <div class="text-sm font-bold">{{ settings.name }}</div>
+    <div class="col-12">
+        <div class="card elevation-1 border-0">
+            <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <span class="material-symbols-outlined text-primary me-2">storefront</span>
+                    <h6 class="mb-0 font-medium text-gray-800">Restaurant Identity</h6>
+                </div>
+                <a href="{% url 'settings_update' %}" class="btn btn-sm btn-light rounded-full p-2" title="Edit Identity">
+                    <span class="material-symbols-outlined text-gray-500" style="font-size: 20px;">edit</span>
+                </a>
             </div>
-            <div class="p-4 border-r border-b border-black md:border-b-0">
-                <div class="text-[9px] font-bold text-gray-500">TAGLINE</div>
-                <div class="text-sm">{{ settings.tagline }}</div>
-            </div>
-            <div class="p-4 border-b border-black md:border-b-0 lg:border-r">
-                <div class="text-[9px] font-bold text-gray-500">TRN_NUMBER</div>
-                <div class="text-sm font-bold">{{ settings.trn_number|default:"N/A" }}</div>
+            <div class="card-body border-top border-gray-100 p-0">
+                <div class="row g-0">
+                    <div class="col-12 col-md-4 p-4 border-end border-gray-100">
+                        <div class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Restaurant Name</div>
+                        <div class="text-lg font-bold text-gray-800">{{ settings.name }}</div>
+                    </div>
+                    <div class="col-12 col-md-4 p-4 border-end border-gray-100">
+                        <div class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Tagline</div>
+                        <div class="text-sm text-gray-600">{{ settings.tagline }}</div>
+                    </div>
+                    <div class="col-12 col-md-4 p-4">
+                        <div class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">TRN Number</div>
+                        <div class="text-sm font-bold text-gray-800">{{ settings.trn_number|default:"N/A" }}</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Staff Management -->
-    <div class="border border-black">
-        <div class="p-3 bg-black text-white flex justify-between items-center">
-            <span class="text-xs font-bold uppercase">STAFF_MANAGEMENT</span>
-            <a href="{% url 'user_add' %}" class="text-[10px] font-bold underline text-white">[+ADD_NEW_STAFF]</a>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-[10px] border-collapse">
-                <thead>
-                    <tr class="bg-gray-50 border-b border-black">
-                        <th class="p-2 font-bold border-r border-black uppercase">FULL_NAME</th>
-                        <th class="p-2 font-bold border-r border-black uppercase">USERNAME</th>
-                        <th class="p-2 font-bold border-r border-black uppercase">ROLE</th>
-                        <th class="p-2 font-bold border-r border-black uppercase">STATUS</th>
-                        <th class="p-2 font-bold uppercase">ACTION</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-black">
-                    {% for u in users %}
-                    <tr>
-                        <td class="p-2 border-r border-black">{{ u.get_full_name|default:u.username }}</td>
-                        <td class="p-2 border-r border-black font-bold uppercase">{{ u.username }}</td>
-                        <td class="p-2 border-r border-black">
-                            <span class="px-1 border border-black uppercase">{% if u.is_superuser %}ADMIN{% else %}STAFF{% endif %}</span>
-                        </td>
-                        <td class="p-2 border-r border-black">
-                            <span class="{% if u.is_active %}text-black{% else %}text-gray-400{% endif %} font-bold">{% if u.is_active %}ACTIVE{% else %}INACTIVE{% endif %}</span>
-                        </td>
-                        <td class="p-2 space-x-2">
-                            <a href="{% url 'user_edit' u.id %}" class="underline font-bold">[EDIT]</a>
-                            <a href="{% url 'user_delete' u.id %}" class="underline font-bold text-red-600">[DEL]</a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+    <div class="col-12">
+        <div class="card elevation-1 border-0">
+            <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <span class="material-symbols-outlined text-primary me-2">badge</span>
+                    <h6 class="mb-0 font-medium text-gray-800">Staff Management</h6>
+                </div>
+                <a href="{% url 'user_add' %}" class="btn btn-mui-primary flex items-center">
+                    <span class="material-symbols-outlined me-2">person_add</span> Add New Staff
+                </a>
+            </div>
+            <div class="table-responsive border-top border-gray-100">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="ps-4 py-3 border-0 text-xs font-medium text-gray-500 uppercase">Full Name</th>
+                            <th class="py-3 border-0 text-xs font-medium text-gray-500 uppercase">Username</th>
+                            <th class="py-3 border-0 text-xs font-medium text-gray-500 uppercase">Role</th>
+                            <th class="py-3 border-0 text-xs font-medium text-gray-500 uppercase">Status</th>
+                            <th class="pe-4 py-3 border-0 text-xs font-medium text-gray-500 uppercase text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        {% for u in users %}
+                        <tr>
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="w-8 h-8 rounded-full bg-primary bg-opacity-10 text-primary flex items-center justify-center font-bold text-xs me-3">
+                                        {{ u.username|first|upper }}
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-800">{{ u.get_full_name|default:u.username }}</span>
+                                </div>
+                            </td>
+                            <td><span class="text-sm text-gray-600">{{ u.username }}</span></td>
+                            <td>
+                                {% if u.is_superuser %}
+                                <span class="badge bg-primary bg-opacity-10 text-primary border-0 font-medium px-2 py-1 rounded">ADMIN</span>
+                                {% else %}
+                                <span class="badge bg-gray-100 text-gray-600 border-0 font-medium px-2 py-1 rounded">STAFF</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if u.is_active %}
+                                <div class="d-flex align-items-center text-green-600">
+                                    <span class="w-2 h-2 rounded-full bg-green-500 me-2"></span>
+                                    <span class="text-xs font-bold uppercase">Active</span>
+                                </div>
+                                {% else %}
+                                <div class="d-flex align-items-center text-gray-400">
+                                    <span class="w-2 h-2 rounded-full bg-gray-300 me-2"></span>
+                                    <span class="text-xs font-bold uppercase">Inactive</span>
+                                </div>
+                                {% endif %}
+                            </td>
+                            <td class="pe-4 text-end">
+                                <div class="dropdown" x-data="{ open: false }">
+                                    <button class="btn btn-sm btn-light rounded-pill px-3 fw-bold text-xs d-flex align-items-center gap-1 mx-auto me-md-0" 
+                                            @click="open = !open" @click.outside="open = false">
+                                        Manage <span class="material-symbols-outlined" style="font-size: 16px;">expand_more</span>
+                                    </button>
+                                    
+                                    <ul class="dropdown-menu dropdown-menu-end elevation-8 border-0 py-2" 
+                                        :class="open ? 'show' : ''"
+                                        style="position: absolute; right: 0; top: 100%; z-index: 1000;">
+                                        <li>
+                                            <a class="dropdown-item py-2 d-flex align-items-center gap-2" href="{% url 'user_edit' u.id %}">
+                                                <span class="material-symbols-outlined text-gray-400" style="font-size: 20px;">edit</span>
+                                                <span class="text-sm">Edit Profile</span>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <button class="dropdown-item py-2 d-flex align-items-center gap-2" onclick="resetPassword('{{ u.id }}', '{{ u.username }}')">
+                                                <span class="material-symbols-outlined text-gray-400" style="font-size: 20px;">lock_reset</span>
+                                                <span class="text-sm">Reset Password</span>
+                                            </button>
+                                        </li>
+                                        <li>
+                                            <button class="dropdown-item py-2 d-flex align-items-center gap-2" onclick="toggleStatus('{{ u.id }}')">
+                                                <span class="material-symbols-outlined text-gray-400" style="font-size: 20px;">power_settings_new</span>
+                                                <span class="text-sm">Toggle Active</span>
+                                            </button>
+                                        </li>
+                                        <li><hr class="dropdown-divider opacity-10"></li>
+                                        <li>
+                                            <a class="dropdown-item py-2 d-flex align-items-center gap-2 text-danger" href="{% url 'user_delete' u.id %}">
+                                                <span class="material-symbols-outlined" style="font-size: 20px;">delete</span>
+                                                <span class="text-sm">Delete Account</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
     <!-- Financial Config -->
-    <div class="border border-black">
-        <div class="p-3 bg-black text-white flex justify-between items-center">
-            <span class="text-xs font-bold uppercase">FINANCIAL_CONFIG</span>
-            <a href="{% url 'settings_update' %}" class="text-[10px] font-bold underline text-white">[EDIT]</a>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-0 border-t border-black">
-            <div class="p-4 border-r border-black">
-                <div class="text-[9px] font-bold text-gray-500">CURRENCY_SYMBOL</div>
-                <div class="text-xl font-bold">{{ settings.currency_symbol }}</div>
+    <div class="col-12">
+        <div class="card elevation-1 border-0">
+            <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <span class="material-symbols-outlined text-primary me-2">account_balance_wallet</span>
+                    <h6 class="mb-0 font-medium text-gray-800">Financial Config</h6>
+                </div>
+                <a href="{% url 'settings_update' %}" class="btn btn-sm btn-light rounded-full p-2">
+                    <span class="material-symbols-outlined text-gray-500" style="font-size: 20px;">edit</span>
+                </a>
             </div>
-            <div class="p-4">
-                <div class="text-[9px] font-bold text-gray-500">TAX_RATE_(VAT)</div>
-                <div class="text-xl font-bold">{{ settings.default_tax_rate }}%</div>
+            <div class="card-body border-top border-gray-100 p-4">
+                <div class="row g-4">
+                    <div class="col-6 col-md-3">
+                        <div class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Currency Symbol</div>
+                        <div class="display-6 fw-bold text-primary">{{ settings.currency_symbol }}</div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Default Tax Rate</div>
+                        <div class="display-6 fw-bold text-gray-800">{{ settings.default_tax_rate }}%</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+{% block extra_js %}
+<script>
+    function toggleStatus(userId) {
+        const formData = new FormData();
+        formData.append('user_id', userId);
+
+        fetch('/ajax/toggle-user-status/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                window.showToast('User status updated');
+                setTimeout(() => location.reload(), 1000);
+            }
+        });
+    }
+
+    function resetPassword(userId, username) {
+        if (!confirm(`Reset password for ${username} to 'resto123'?`)) return;
+
+        const formData = new FormData();
+        formData.append('user_id', userId);
+
+        fetch('/ajax/reset-user-password/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                window.showToast(data.message, 'info');
+            }
+        });
+    }
+</script>
 {% endblock %}
+{% endblock %}
+

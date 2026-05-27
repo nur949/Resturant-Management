@@ -3,44 +3,74 @@
 {% block page_title %}{{ title|default:"Management Console" }}{% endblock %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto">
-    <div class="card bg-white dark:bg-charcoal border border-slate-200 dark:border-white/5 rounded-[32px] overflow-hidden shadow-2xl">
-        <div class="p-8 border-b border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-dark/30">
-            <h3 class="text-xl font-black tracking-tight">{{ title }}</h3>
-            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Enterprise Configuration Interface</p>
-        </div>
-        <div class="p-8">
-            <form method="post" enctype="multipart/form-data" class="space-y-6">
-                {% csrf_token %}
-                <div class="grid grid-cols-1 gap-6">
-                    {% for field in form %}
-                    <div class="flex flex-col gap-2">
-                        <label class="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-1">
-                            {{ field.label }}
-                        </label>
-                        {{ field }}
-                        {% if field.help_text %}
-                            <p class="text-[9px] text-slate-400 font-medium ml-1">{{ field.help_text }}</p>
-                        {% endif %}
-                        {% if field.errors %}
-                            <div class="text-crimson text-[9px] font-bold bg-crimson/5 p-2 rounded-lg border border-crimson/10">
-                                {{ field.errors }}
-                            </div>
-                        {% endif %}
+<div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+        <div class="card elevation-1 border-0 overflow-hidden">
+            <div class="card-header bg-white py-4 border-0 text-center">
+                <div class="w-16 h-16 bg-primary bg-opacity-5 rounded-circle d-flex align-items-center justify-center mx-auto mb-3">
+                    <span class="material-symbols-outlined text-primary text-3xl">edit_note</span>
+                </div>
+                <h4 class="fw-bold text-gray-800 mb-1">{{ title }}</h4>
+                <p class="text-xs text-gray-400 font-bold uppercase tracking-widest mb-0">Configuration Interface</p>
+            </div>
+            <div class="card-body p-4 p-md-5 pt-0">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="d-flex flex-column gap-4">
+                        {% for field in form %}
+                        <div class="form-group">
+                            <label class="form-label text-xs fw-bold text-gray-500 uppercase tracking-widest mb-2 ms-1">
+                                {{ field.label }}
+                            </label>
+                            {{ field }}
+                            {% if field.help_text %}
+                                <p class="text-xs text-gray-400 mt-1 ms-1">{{ field.help_text }}</p>
+                            {% endif %}
+                            {% if field.errors %}
+                                <div class="alert alert-danger py-2 px-3 rounded-lg border-0 text-xs mt-2 d-flex align-items-center">
+                                    <span class="material-symbols-outlined text-sm me-2">error</span>
+                                    {{ field.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
-                </div>
-                
-                <div class="pt-6 flex gap-4">
-                    <button type="submit" class="flex-1 py-4 bg-primary text-white rounded-2xl font-black text-xs shadow-lg shadow-primary/30 hover:bg-primary-hover active:scale-95 transition-all">
-                        COMMIT CHANGES
-                    </button>
-                    <a href="javascript:history.back()" class="flex-1 py-4 bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-white rounded-2xl font-black text-xs flex items-center justify-center hover:bg-slate-200 transition-all">
-                        CANCEL
-                    </a>
-                </div>
-            </form>
+                    
+                    <div class="mt-5 d-flex gap-3">
+                        <button type="submit" class="btn btn-mui-primary flex-grow-1 py-3">
+                            <span class="material-symbols-outlined me-2">check_circle</span> Commit Changes
+                        </button>
+                        <a href="javascript:history.back()" class="btn btn-light rounded-pill px-4 flex-grow-1 py-3 d-flex align-items-center justify-center text-gray-600 font-bold text-sm">
+                            <span class="material-symbols-outlined me-2">cancel</span> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
+
+<style>
+    input[type="text"], input[type="email"], input[type="tel"], input[type="number"], input[type="password"], textarea, select, input[type="file"] {
+        display: block;
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #475569;
+        background-color: #f8fafc;
+        background-clip: padding-box;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.5rem;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+    input:focus, textarea:focus, select:focus {
+        background-color: #fff;
+        border-color: #1976d2;
+        outline: 0;
+        box-shadow: 0 0 0 4px rgba(25, 118, 210, 0.1);
+    }
+</style>
 {% endblock %}
+

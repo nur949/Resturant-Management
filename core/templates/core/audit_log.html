@@ -3,76 +3,94 @@
 {% block page_title %}Security & System Surveillance{% endblock %}
 
 {% block content %}
-<div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
-    <div class="flex items-center gap-3">
-        <div class="flex items-center space-x-2 bg-white dark:bg-white/5 border-2 border-slate-100 dark:border-white/10 p-1 rounded-2xl">
-            <button class="px-5 py-2 bg-primary text-white text-[10px] font-black rounded-xl shadow-lg shadow-primary/20">LIVE AUDIT</button>
-            <button class="px-5 py-2 text-slate-500 hover:text-slate-900 dark:hover:text-white text-[10px] font-black rounded-xl transition-all">THREAT FEED</button>
+<div class="row g-4 align-items-center mb-6">
+    <div class="col-12 col-md-auto">
+        <div class="btn-group elevation-0 border rounded-pill overflow-hidden bg-white">
+            <button class="btn btn-primary px-4 fw-medium text-sm">Live Audit</button>
+            <button class="btn btn-light px-4 fw-medium text-sm text-gray-600 border-start">Threat Feed</button>
         </div>
     </div>
-    <div class="flex items-center space-x-4">
-        <div class="relative group">
-            <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-            <input type="text" id="auditSearch" placeholder="Trace system events..." class="input-pro pl-12 w-64">
+    <div class="col-12 col-md flex-grow-1">
+        <div class="input-group elevation-0 border rounded-pill overflow-hidden bg-white">
+            <span class="input-group-text bg-transparent border-0 text-gray-400 ps-4">
+                <span class="material-symbols-outlined">search</span>
+            </span>
+            <input type="text" id="auditSearch" placeholder="Trace system events..." 
+                   class="form-control border-0 bg-transparent shadow-none py-2 text-sm">
         </div>
     </div>
 </div>
 
-<div class="card bg-white dark:bg-charcoal rounded-[40px] border-2 border-slate-100 dark:border-white/10 overflow-hidden shadow-sm">
-    <div class="overflow-x-auto">
-        <table class="premium-table">
-            <thead>
+<div class="card elevation-1 border-0 overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-gray-50">
                 <tr>
-                    <th>Timestamp</th>
-                    <th>User Identity</th>
-                    <th>Operation</th>
-                    <th>Target Resource</th>
-                    <th class="text-right">Intelligence</th>
+                    <th class="ps-4 py-3 border-0 text-xs font-medium text-gray-500 uppercase">Timestamp</th>
+                    <th class="py-3 border-0 text-xs font-medium text-gray-500 uppercase">User Identity</th>
+                    <th class="py-3 border-0 text-xs font-medium text-gray-500 uppercase text-center">Operation</th>
+                    <th class="py-3 border-0 text-xs font-medium text-gray-500 uppercase">Target Resource</th>
+                    <th class="pe-4 py-3 border-0 text-xs font-medium text-gray-500 uppercase text-end">Intelligence</th>
                 </tr>
             </thead>
-            <tbody id="auditTable">
+            <tbody id="auditTable" class="divide-y divide-gray-100">
                 {% for log in logs %}
-                <tr class="group">
-                    <td>
-                        <div class="flex flex-col">
-                            <span class="text-[11px] font-black text-slate-900 dark:text-white">{{ log.timestamp|date:"d M Y" }}</span>
-                            <span class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">{{ log.timestamp|date:"H:i:s" }}</span>
+                <tr>
+                    <td class="ps-4">
+                        <div class="d-flex flex-column">
+                            <span class="text-sm font-medium text-gray-800">{{ log.timestamp|date:"d M Y" }}</span>
+                            <span class="text-xs text-gray-400 uppercase tracking-widest">{{ log.timestamp|date:"H:i:s" }}</span>
                         </div>
                     </td>
                     <td>
-                        <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center text-[10px] font-black text-slate-400 border border-slate-100 dark:border-white/5 uppercase">{{ log.user.username|first|default:"S" }}</div>
-                            <span class="text-xs font-bold text-slate-900 dark:text-white">{{ log.user.username|default:"SYSTEM ENGINE" }}</span>
+                        <div class="d-flex align-items-center">
+                            <div class="w-8 h-8 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center font-bold text-xs border border-gray-100 me-2 uppercase">
+                                {{ log.user.username|first|default:"S" }}
+                            </div>
+                            <span class="text-sm font-medium text-gray-700">{{ log.user.username|default:"SYSTEM ENGINE" }}</span>
                         </div>
                     </td>
+                    <td class="text-center">
+                        {% if log.action == 'create' %}
+                        <span class="badge bg-green-50 text-green-700 border-0 px-2 py-1 rounded text-xs font-medium">Create</span>
+                        {% elif log.action == 'update' %}
+                        <span class="badge bg-amber-50 text-amber-700 border-0 px-2 py-1 rounded text-xs font-medium">Update</span>
+                        {% else %}
+                        <span class="badge bg-red-50 text-red-700 border-0 px-2 py-1 rounded text-xs font-medium">{{ log.get_action_display }}</span>
+                        {% endif %}
+                    </td>
                     <td>
-                        <span class="badge-pro {% if log.action == 'create' %}badge-pro-emerald{% elif log.action == 'update' %}badge-pro-amber{% else %}badge-pro-rose{% endif %}">
-                            {{ log.get_action_display }}
-                        </span>
+                        <div class="d-flex align-items-center">
+                            <span class="text-xs font-bold text-gray-400 uppercase me-2">{{ log.model_name }}:</span>
+                            <span class="text-sm font-medium text-gray-600">{{ log.object_repr }}</span>
+                        </div>
                     </td>
-                    <td class="text-xs">
-                        <span class="text-[10px] font-black text-slate-400 mr-2">{{ log.model_name|upper }}:</span>
-                        <span class="font-bold text-slate-700 dark:text-slate-300">{{ log.object_repr }}</span>
-                    </td>
-                    <td class="text-right">
-                        <button class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-white/5 flex items-center justify-center text-slate-400 hover:bg-primary/10 hover:text-primary transition-all" onclick="toggleDetails('log-{{ log.id }}')">
-                            <i class="fas fa-terminal text-[10px]"></i>
+                    <td class="pe-4 text-end">
+                        <button class="btn btn-sm btn-light rounded-full p-2 text-gray-400 hover:text-primary transition-all" onclick="toggleDetails('log-{{ log.id }}')">
+                            <span class="material-symbols-outlined" style="font-size: 20px;">terminal</span>
                         </button>
                     </td>
                 </tr>
-                <tr id="log-{{ log.id }}" class="hidden">
-                    <td colspan="5" class="bg-slate-50 dark:bg-dark/50 p-8">
-                        <div class="bg-charcoal/90 text-emerald p-6 rounded-3xl font-mono text-[10px] leading-relaxed shadow-inner border border-white/5">
-                            <div class="flex items-center gap-2 mb-4 pb-2 border-b border-white/5">
-                                <i class="fas fa-microchip"></i>
-                                <span class="font-black uppercase tracking-widest">Raw Data Intelligence Blob</span>
+                <tr id="log-{{ log.id }}" class="d-none">
+                    <td colspan="5" class="bg-gray-50 p-4">
+                        <div class="bg-gray-900 text-green-400 p-4 rounded-lg font-monospace text-xs elevation-2">
+                            <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom border-gray-700">
+                                <span class="material-symbols-outlined text-sm">microchip</span>
+                                <span class="fw-bold uppercase tracking-widest" style="font-size: 10px;">Raw Data Intelligence Blob</span>
                             </div>
-                            {{ log.changes }}
+                            <pre class="mb-0 overflow-auto" style="max-height: 200px;">{{ log.changes }}</pre>
                         </div>
                     </td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="5" class="text-center py-24 text-slate-400 font-bold uppercase tracking-widest text-[10px]">Security ledger clear</td></tr>
+                <tr>
+                    <td colspan="5" class="text-center py-5">
+                        <div class="p-5">
+                            <span class="material-symbols-outlined text-gray-200" style="font-size: 64px;">security</span>
+                            <p class="text-gray-400 mt-3 fw-medium">Security ledger clear</p>
+                        </div>
+                    </td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -83,7 +101,18 @@
 {% block extra_js %}
 <script>
     function toggleDetails(id) {
-        document.getElementById(id).classList.toggle('hidden');
+        const el = document.getElementById(id);
+        el.classList.toggle('d-none');
     }
+
+    document.getElementById('auditSearch').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const rows = document.querySelectorAll('#auditTable > tr:not([id^="log-"])');
+        rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            row.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+    });
 </script>
 {% endblock %}
+

@@ -1,75 +1,107 @@
 {% extends 'core/base.html' %}
 
-{% block page_title %}Universal Transactional Ledger{% endblock %}
+{% block page_title %}Sales Log{% endblock %}
 
 {% block content %}
-<div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
-    <div class="flex items-center gap-3">
-        <div class="flex items-center space-x-2 bg-white dark:bg-white/5 border-2 border-slate-100 dark:border-white/10 p-1 rounded-2xl">
-            <button class="px-5 py-2 bg-primary text-white text-[10px] font-black rounded-xl shadow-lg shadow-primary/20">LIVE FEED</button>
-            <button class="px-5 py-2 text-slate-500 hover:text-slate-900 dark:hover:text-white text-[10px] font-black rounded-xl transition-all">PAID ARCHIVE</button>
+<div class="row g-4 align-items-center mb-6">
+    <div class="col-12 col-md-auto">
+        <div class="btn-group elevation-0 border rounded-pill overflow-hidden bg-white">
+            <button class="btn btn-primary px-4 fw-medium text-sm">Live Feed</button>
+            <button class="btn btn-light px-4 fw-medium text-sm text-gray-600 border-start">Paid Archive</button>
         </div>
     </div>
-    <div class="flex items-center space-x-4">
-        <div class="relative group">
-            <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-            <input type="text" id="orderSearch" placeholder="Audit invoices..." class="input-pro pl-12 w-64">
+    <div class="col-12 col-md flex-grow-1">
+        <div class="input-group elevation-0 border rounded-pill overflow-hidden bg-white">
+            <span class="input-group-text bg-transparent border-0 text-gray-400 ps-4">
+                <span class="material-symbols-outlined">search</span>
+            </span>
+            <input type="text" id="orderSearch" placeholder="Audit invoice numbers..." 
+                   class="form-control border-0 bg-transparent shadow-none py-2 text-sm">
         </div>
     </div>
 </div>
 
-<div class="card bg-white dark:bg-charcoal rounded-[40px] border-2 border-slate-100 dark:border-white/10 overflow-hidden shadow-sm">
-    <div class="overflow-x-auto">
-        <table class="premium-table">
-            <thead>
+<div class="card elevation-1 border-0 overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-gray-50">
                 <tr>
-                    <th>Invoice ID</th>
-                    <th>Station Assignment</th>
-                    <th>Fulfillment</th>
-                    <th>Date & Time</th>
-                    <th>Settlement</th>
-                    <th class="text-right">Operation Intelligence</th>
+                    <th class="ps-4 py-3 border-0 text-xs font-medium text-gray-500 uppercase">Invoice ID</th>
+                    <th class="py-3 border-0 text-xs font-medium text-gray-500 uppercase">Station Assignment</th>
+                    <th class="py-3 border-0 text-xs font-medium text-gray-500 uppercase text-center">Fulfillment</th>
+                    <th class="py-3 border-0 text-xs font-medium text-gray-500 uppercase">Date & Time</th>
+                    <th class="py-3 border-0 text-xs font-medium text-gray-500 uppercase">Settlement</th>
+                    <th class="pe-4 py-3 border-0 text-xs font-medium text-gray-500 uppercase text-end">Operations</th>
                 </tr>
             </thead>
-            <tbody id="orderTable">
+            <tbody id="orderTable" class="divide-y divide-gray-100">
                 {% for order in orders %}
-                <tr class="group">
-                    <td>
-                        <span class="text-xs font-black text-slate-900 dark:text-white tracking-tighter">#{{ order.invoice_number }}</span>
+                <tr>
+                    <td class="ps-4">
+                        <span class="font-bold text-gray-800">#{{ order.invoice_number }}</span>
                     </td>
                     <td>
-                        <div class="flex items-center space-x-3">
-                            <div class="w-9 h-9 rounded-xl bg-slate-50 dark:bg-white/5 flex items-center justify-center text-[10px] font-black text-slate-400 border border-slate-100 dark:border-white/5">T{{ order.table.number }}</div>
-                            <span class="text-xs font-bold text-slate-600">{{ order.staff.username|upper }}</span>
+                        <div class="d-flex align-items-center">
+                            <div class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-xs font-bold text-gray-500 border border-gray-100 me-2">T{{ order.table.number }}</div>
+                            <span class="text-xs font-bold text-gray-600 uppercase">{{ order.staff.username }}</span>
+                        </div>
+                    </td>
+                    <td class="text-center">
+                        {% if order.status == 'paid' %}
+                        <span class="badge bg-green-50 text-green-700 border-0 px-2 py-1 rounded-full text-xs font-medium">Paid</span>
+                        {% elif order.status == 'pending' %}
+                        <span class="badge bg-amber-50 text-amber-700 border-0 px-2 py-1 rounded-full text-xs font-medium">Pending</span>
+                        {% else %}
+                        <span class="badge bg-blue-50 text-blue-700 border-0 px-2 py-1 rounded-full text-xs font-medium">{{ order.get_status_display }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="d-flex flex-column">
+                            <span class="text-sm font-medium text-gray-800">{{ order.created_at|date:"d M Y" }}</span>
+                            <span class="text-xs text-gray-400 uppercase tracking-widest">{{ order.created_at|date:"H:i A" }}</span>
                         </div>
                     </td>
                     <td>
-                        <span class="badge-pro {% if order.status == 'paid' %}badge-pro-emerald{% elif order.status == 'pending' %}badge-pro-amber{% else %}badge-pro-primary{% endif %}">
-                            {{ order.get_status_display }}
-                        </span>
+                        <span class="text-sm font-bold text-gray-800">${{ order.total_price|floatformat:2 }}</span>
                     </td>
-                    <td>
-                        <div class="flex flex-col">
-                            <span class="text-[11px] font-black text-slate-900 dark:text-white">{{ order.created_at|date:"d M Y" }}</span>
-                            <span class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">{{ order.created_at|date:"H:i A" }}</span>
-                        </div>
-                    </td>
-                    <td>
-                        <span class="text-sm font-black text-slate-900 dark:text-white tracking-tighter">${{ order.total_price|floatformat:2 }}</span>
-                    </td>
-                    <td class="text-right">
-                        <div class="flex justify-end items-center gap-2">
-                            <a href="{% url 'order_detail' order.id %}" class="w-9 h-9 rounded-xl flex items-center justify-center text-slate-400 hover:bg-primary/10 hover:text-primary transition-all"><i class="fas fa-fingerprint text-xs"></i></a>
-                            <a href="{% url 'order_print' order.id %}" target="_blank" class="w-9 h-9 rounded-xl flex items-center justify-center text-slate-400 hover:bg-emerald/10 hover:text-emerald transition-all"><i class="fas fa-print text-xs"></i></a>
-                            <a href="{% url 'order_delete' order.id %}" class="w-9 h-9 rounded-xl flex items-center justify-center text-slate-400 hover:bg-rose/10 hover:text-rose transition-all"><i class="fas fa-trash-alt text-xs"></i></a>
+                    <td class="pe-4 text-end">
+                        <div class="d-flex justify-content-end gap-1">
+                            <a href="{% url 'order_detail' order.id %}" class="btn btn-sm btn-light rounded-full p-2 text-gray-600 hover:text-primary" title="View Detail">
+                                <span class="material-symbols-outlined" style="font-size: 20px;">fingerprint</span>
+                            </a>
+                            <a href="{% url 'order_print' order.id %}" target="_blank" class="btn btn-sm btn-light rounded-full p-2 text-gray-600 hover:text-green-600" title="Print Receipt">
+                                <span class="material-symbols-outlined" style="font-size: 20px;">print</span>
+                            </a>
+                            <a href="{% url 'order_delete' order.id %}" class="btn btn-sm btn-light rounded-full p-2 text-gray-600 hover:text-danger" title="Delete">
+                                <span class="material-symbols-outlined" style="font-size: 20px;">delete</span>
+                            </a>
                         </div>
                     </td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="6" class="text-center py-24 text-slate-400 font-bold uppercase tracking-widest text-[10px]">No transaction history recorded</td></tr>
+                <tr>
+                    <td colspan="6" class="text-center py-5">
+                        <div class="p-5">
+                            <span class="material-symbols-outlined text-gray-200" style="font-size: 64px;">receipt_long</span>
+                            <p class="text-gray-400 mt-3 fw-medium">No transaction history recorded</p>
+                        </div>
+                    </td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
+
+<script>
+    document.getElementById('orderSearch').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const rows = document.querySelectorAll('#orderTable tr');
+        rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            row.style.display = text.includes(searchTerm) ? '' : 'none';
+        });
+    });
+</script>
 {% endblock %}
+

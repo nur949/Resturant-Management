@@ -1,102 +1,183 @@
 {% extends 'core/base.html' %}
 
-{% block page_title %}SYSTEM_OVERVIEW{% endblock %}
+{% block page_title %}System Overview{% endblock %}
 
 {% block content %}
-<!-- KPI Stats -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-0 border-t border-l border-black mb-8">
-    <div class="p-4 border-r border-b border-black">
-        <div class="text-[10px] font-bold text-gray-500 uppercase">REVENUE_TODAY</div>
-        <div class="text-xl font-bold">${{ today_sales|floatformat:2 }}</div>
+<div class="row g-4 mb-4">
+    <!-- KPI Stats -->
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card elevation-1 h-100 border-0">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="bg-blue-50 p-2 rounded-full flex items-center justify-center">
+                        <span class="material-symbols-outlined text-blue-600">payments</span>
+                    </div>
+                    <span class="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded">+12%</span>
+                </div>
+                <p class="text-sm font-medium text-gray-500 mb-1">Revenue Today</p>
+                <h4 class="fw-bold mb-0 text-gray-800">${{ today_sales|floatformat:2 }}</h4>
+            </div>
+        </div>
     </div>
-    <div class="p-4 border-r border-b border-black">
-        <div class="text-[10px] font-bold text-gray-500 uppercase">EXPENSES_TODAY</div>
-        <div class="text-xl font-bold">${{ today_expenses|floatformat:2 }}</div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card elevation-1 h-100 border-0">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="bg-red-50 p-2 rounded-full flex items-center justify-center">
+                        <span class="material-symbols-outlined text-red-600">receipt_long</span>
+                    </div>
+                    <span class="text-xs font-medium text-red-600 bg-red-50 px-2 py-1 rounded">-2%</span>
+                </div>
+                <p class="text-sm font-medium text-gray-500 mb-1">Expenses Today</p>
+                <h4 class="fw-bold mb-0 text-gray-800">${{ today_expenses|floatformat:2 }}</h4>
+            </div>
+        </div>
     </div>
-    <div class="p-4 border-r border-b border-black">
-        <div class="text-[10px] font-bold text-gray-500 uppercase">ACTIVE_ORDERS</div>
-        <div class="text-xl font-bold">{{ pending_orders }}</div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card elevation-1 h-100 border-0">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="bg-amber-50 p-2 rounded-full flex items-center justify-center">
+                        <span class="material-symbols-outlined text-amber-600">shopping_cart</span>
+                    </div>
+                    <span class="text-xs font-medium text-amber-600 bg-amber-50 px-2 py-1 rounded">Active</span>
+                </div>
+                <p class="text-sm font-medium text-gray-500 mb-1">Active Orders</p>
+                <h4 class="fw-bold mb-0 text-gray-800">{{ pending_orders }}</h4>
+            </div>
+        </div>
     </div>
-    <div class="p-4 border-r border-b border-black">
-        <div class="text-[10px] font-bold text-gray-500 uppercase">BOOKINGS</div>
-        <div class="text-xl font-bold">{{ today_reservations_count }}</div>
-    </div>
-    <div class="p-4 border-r border-b border-black bg-black text-white">
-        <div class="text-[10px] font-bold text-gray-400 uppercase">TABLE_OCCUPANCY</div>
-        <div class="text-xl font-bold">{{ occupied_tables }}/{{ total_tables }}</div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card elevation-2 h-100 border-0 bg-primary text-white">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="bg-white bg-opacity-20 p-2 rounded-full flex items-center justify-center">
+                        <span class="material-symbols-outlined text-white">groups</span>
+                    </div>
+                    <span class="material-symbols-outlined text-white opacity-50">more_vert</span>
+                </div>
+                <p class="text-sm font-medium text-white text-opacity-75 mb-1">Table Occupancy</p>
+                <h4 class="fw-bold mb-0 text-white">{{ occupied_tables }}/{{ total_tables }}</h4>
+            </div>
+        </div>
     </div>
 </div>
 
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-    <!-- Live Feed -->
-    <div class="lg:col-span-2 border border-black">
-        <div class="p-3 bg-black text-white text-xs font-bold uppercase tracking-widest">
-            FINANCIAL_CHART
-        </div>
-        <div class="p-4">
-            <div id="revenueChart" class="h-64"></div>
+<div class="row g-4 mb-4">
+    <!-- Chart -->
+    <div class="col-12 col-lg-8">
+        <div class="card elevation-1 h-100 border-0 overflow-hidden">
+            <div class="card-header bg-white py-3 border-0 d-flex align-items-center justify-content-between">
+                <h6 class="mb-0 font-medium text-gray-800">Financial Performance</h6>
+                <a href="{% url 'export_sales_csv' %}" class="btn btn-sm btn-mui-ghost rounded-pill flex items-center justify-center px-3 border py-1">
+                    <span class="material-symbols-outlined text-gray-500 me-2" style="font-size: 18px;">download</span>
+                    <span class="text-xs font-bold text-gray-600">Export CSV</span>
+                </a>
+            </div>
+            <div class="card-body">
+                <div id="revenueChart" style="min-height: 350px;"></div>
+            </div>
         </div>
     </div>
 
-    <div class="space-y-6">
-        <!-- Stock Alerts -->
-        {% if low_stock_count > 0 %}
-        <div class="border border-red-600 p-4">
-            <div class="text-xs font-bold text-red-600 uppercase mb-2">!!! STOCK_ALERTS !!!</div>
-            <div class="text-[10px] mb-3">{{ low_stock_count }} items below threshold.</div>
-            <a href="{% url 'ingredient_list' %}" class="text-[10px] font-bold underline">RESOLVE_INVENTORY</a>
-        </div>
-        {% endif %}
-
-        <!-- Active Feed -->
-        <div class="border border-black">
-            <div class="p-2 bg-black text-white text-[10px] font-bold uppercase tracking-wider">KITCHEN_FEED</div>
-            <div class="divide-y divide-black">
-                {% for order in recent_orders %}
-                <div class="p-3">
-                    <div class="flex justify-between text-[10px] font-bold mb-1">
-                        <span>TABLE_{{ order.table.number }}</span>
-                        <span>{{ order.created_at|date:"H:i" }}</span>
+    <div class="col-12 col-lg-4">
+        <div class="d-flex flex-column gap-4 h-100">
+            <!-- Low Stock -->
+            {% if low_stock_count > 0 %}
+            <div class="card elevation-4 border-0 bg-danger text-white overflow-hidden">
+                <div class="card-body p-4 position-relative">
+                    <div class="position-relative z-1">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="material-symbols-outlined me-2">warning</span>
+                            <h6 class="mb-0 font-medium">Low Stock Alerts</h6>
+                        </div>
+                        <p class="mb-3 opacity-90 text-sm">{{ low_stock_count }} items are below their minimum threshold.</p>
+                        <a href="{% url 'ingredient_list' %}" class="btn btn-sm btn-light text-danger fw-bold rounded-pill elevation-1">Manage Inventory</a>
                     </div>
-                    <div class="text-[9px] uppercase">{{ order.get_status_display }}</div>
+                    <span class="material-symbols-outlined position-absolute end-0 bottom-0 text-white opacity-10 mb-n4 me-n2" style="font-size: 8rem;">inventory_2</span>
                 </div>
-                {% empty %}
-                <div class="p-4 text-[10px] text-gray-400 text-center uppercase">NO_ACTIVE_TASKS</div>
-                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Kitchen Feed -->
+            <div class="card elevation-1 flex-grow-1 border-0">
+                <div class="card-header bg-white py-3 border-0">
+                    <h6 class="mb-0 font-medium text-gray-800 uppercase tracking-widest text-xs">Kitchen Feed</h6>
+                </div>
+                <div class="list-group list-group-flush">
+                    {% for order in recent_orders %}
+                    <div class="list-group-item p-3 border-0 border-bottom">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-sm font-medium text-primary bg-primary bg-opacity-5 px-2 py-1 rounded">TABLE #{{ order.table.number }}</span>
+                            <span class="text-xs text-gray-400 flex items-center">
+                                <span class="material-symbols-outlined text-xs me-1" style="font-size: 14px;">schedule</span>
+                                {{ order.created_at|date:"H:i" }}
+                            </span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="w-2 h-2 rounded-full bg-blue-500 me-2"></div>
+                            <span class="text-sm text-gray-600 font-medium">{{ order.get_status_display }}</span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="p-5 text-center">
+                        <span class="material-symbols-outlined text-gray-200" style="font-size: 48px;">receipt_long</span>
+                        <p class="text-gray-400 text-sm mb-0 mt-2">No active kitchen tasks</p>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Recent Transactions -->
-<div class="mt-8 border border-black">
-    <div class="p-3 border-b border-black flex justify-between items-center">
-        <span class="text-xs font-bold uppercase">RECENT_TRANSACTIONS</span>
-        <a href="{% url 'order_list' %}" class="text-[10px] font-bold underline">VIEW_ALL_LOGS</a>
+<div class="card elevation-1 mb-4 border-0">
+    <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 font-medium text-gray-800">Recent Transactions</h6>
+        <a href="{% url 'order_list' %}" class="btn btn-sm text-primary fw-medium">View All</a>
     </div>
-    <div class="overflow-x-auto">
-        <table class="w-full text-left text-[10px] border-collapse">
-            <thead>
-                <tr class="bg-gray-50 border-b border-black">
-                    <th class="p-2 font-bold border-r border-black">INVOICE</th>
-                    <th class="p-2 font-bold border-r border-black">ENTITY</th>
-                    <th class="p-2 font-bold border-r border-black">STATUS</th>
-                    <th class="p-2 font-bold border-r border-black">TOTAL</th>
-                    <th class="p-2 font-bold">ACTION</th>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="ps-4 py-3 border-0 text-xs font-medium text-gray-500 uppercase">Invoice</th>
+                    <th class="py-3 border-0 text-xs font-medium text-gray-500 uppercase">Customer / Table</th>
+                    <th class="py-3 border-0 text-xs font-medium text-gray-500 uppercase">Status</th>
+                    <th class="py-3 border-0 text-xs font-medium text-gray-500 uppercase text-end">Total</th>
+                    <th class="pe-4 py-3 border-0 text-xs font-medium text-gray-500 uppercase text-end">Action</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-black">
+            <tbody class="divide-y divide-gray-100">
                 {% for order in recent_orders %}
                 <tr>
-                    <td class="p-2 border-r border-black font-bold uppercase">{{ order.invoice_number }}</td>
-                    <td class="p-2 border-r border-black">TABLE_{{ order.table.number }} / {{ order.customer.name|default:"GUEST"|upper }}</td>
-                    <td class="p-2 border-r border-black">
-                        <span class="px-1 border border-black {% if order.status == 'paid' %}bg-black text-white{% endif %}">{{ order.get_status_display|upper }}</span>
+                    <td class="ps-4">
+                        <span class="font-medium text-gray-800">#{{ order.invoice_number }}</span>
                     </td>
-                    <td class="p-2 border-r border-black font-bold">${{ order.total_price|floatformat:2 }}</td>
-                    <td class="p-2 flex space-x-2">
-                        <a href="{% url 'order_detail' order.id %}" class="underline">[VIEW]</a>
-                        <a href="{% url 'order_print' order.id %}" target="_blank" class="underline">[PRINT]</a>
+                    <td>
+                        <div class="d-flex flex-column">
+                            <span class="text-sm font-medium text-gray-700">{{ order.customer.name|default:"Guest" }}</span>
+                            <span class="text-xs text-gray-500">Table {{ order.table.number }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        {% if order.status == 'paid' %}
+                        <span class="bg-green-100 text-green-700 text-xs font-medium px-2 py-1 rounded-full">Paid</span>
+                        {% elif order.status == 'pending' %}
+                        <span class="bg-amber-100 text-amber-700 text-xs font-medium px-2 py-1 rounded-full">Pending</span>
+                        {% else %}
+                        <span class="bg-gray-100 text-gray-700 text-xs font-medium px-2 py-1 rounded-full">{{ order.get_status_display }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end font-medium text-gray-800">${{ order.total_price|floatformat:2 }}</td>
+                    <td class="pe-4 text-end">
+                        <button class="btn btn-sm btn-light rounded-full p-2" type="button" data-bs-toggle="dropdown">
+                            <span class="material-symbols-outlined text-gray-500" style="font-size: 20px;">more_vert</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end elevation-4 border-0">
+                            <li><a class="dropdown-item py-2 flex items-center" href="{% url 'order_detail' order.id %}"><span class="material-symbols-outlined text-gray-500 me-2" style="font-size: 20px;">visibility</span>View Detail</a></li>
+                            <li><a class="dropdown-item py-2 flex items-center" href="{% url 'order_print' order.id %}" target="_blank"><span class="material-symbols-outlined text-gray-500 me-2" style="font-size: 20px;">print</span>Print Receipt</a></li>
+                        </ul>
                     </td>
                 </tr>
                 {% endfor %}
@@ -104,32 +185,65 @@
         </table>
     </div>
 </div>
+
+<style>
+    .btn-mui-ghost {
+        transition: background-color 0.2s;
+    }
+    .btn-mui-ghost:hover {
+        background-color: rgba(0, 0, 0, 0.04);
+    }
+</style>
 {% endblock %}
 
 {% block extra_js %}
 <script>
     var options = {
         series: [{
-            name: 'REV',
+            name: 'Revenue',
             data: {{ chart_revenue|safe }}
         }, {
-            name: 'EXP',
+            name: 'Expenses',
             data: {{ chart_expenses|safe }}
         }],
         chart: {
-            height: 250,
-            type: 'line',
+            height: 350,
+            type: 'area',
             toolbar: { show: false },
-            fontFamily: 'monospace'
+            fontFamily: 'Roboto, sans-serif',
+            sparkline: { enabled: false },
         },
-        colors: ['#000000', '#999999'],
-        stroke: { width: 2, curve: 'straight' },
-        markers: { size: 4, shape: 'square' },
-        xaxis: { categories: {{ chart_days|safe }}, axisBorder: { show: true, color: '#000' } },
-        yaxis: { labels: { formatter: function (v) { return "$" + v } } },
-        grid: { borderColor: '#eeeeee' },
-        legend: { position: 'top', horizontalAlign: 'right', fontMedium: '10px' }
+        colors: ['#1976d2', '#dc2626'],
+        fill: {
+            type: 'gradient',
+            gradient: {
+                shadeIntensity: 1,
+                opacityFrom: 0.3,
+                opacityTo: 0.05,
+                stops: [0, 90, 100]
+            }
+        },
+        dataLabels: { enabled: false },
+        stroke: { width: 3, curve: 'smooth' },
+        markers: { size: 0 },
+        xaxis: { 
+            categories: {{ chart_days|safe }},
+            axisBorder: { show: false },
+            axisTicks: { show: false },
+            labels: { style: { colors: '#94a3b8', fontSize: '12px' } }
+        },
+        yaxis: { 
+            labels: { 
+                formatter: function (v) { return "$" + v },
+                style: { colors: '#94a3b8', fontSize: '12px' }
+            }
+        },
+        grid: { borderColor: '#f1f5f9', strokeDashArray: 4 },
+        legend: { position: 'top', horizontalAlign: 'right', fontWeight: 500 },
+        tooltip: { theme: 'light', x: { show: true } }
     };
     new ApexCharts(document.querySelector("#revenueChart"), options).render();
 </script>
 {% endblock %}
+
+

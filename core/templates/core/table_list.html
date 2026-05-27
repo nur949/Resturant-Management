@@ -1,102 +1,153 @@
 {% extends 'core/base.html' %}
 
-{% block page_title %}TABLE_OVERSIGHT{% endblock %}
+{% block page_title %}Table Oversight{% endblock %}
 
 {% block content %}
-<!-- Simple Stats -->
-<div class="grid grid-cols-2 md:grid-cols-4 gap-0 border-t border-l border-black mb-8">
-    <div class="p-3 border-r border-b border-black">
-        <div class="text-[9px] font-bold text-gray-500">TOTAL_STATIONS</div>
-        <div class="text-lg font-bold">{{ tables.count }}</div>
-    </div>
-    <div class="p-3 border-r border-b border-black bg-black text-white">
-        <div class="text-[9px] font-bold text-gray-400">AVAILABLE</div>
-        <div class="text-lg font-bold">
-            {% regroup tables by status as status_list %}
-            {% for status in status_list %}
-                {% if status.grouper == 'available' %}{{ status.list|length }}{% endif %}
-            {% endfor %}
+<!-- Stats Overview -->
+<div class="row g-4 mb-8">
+    <div class="col-6 col-md-3">
+        <div class="card elevation-1 border-0">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-2">
+                    <span class="material-symbols-outlined text-gray-400 me-2" style="font-size: 20px;">table_bar</span>
+                    <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">Total Stations</span>
+                </div>
+                <h4 class="fw-bold mb-0">{{ tables.count }}</h4>
+            </div>
         </div>
     </div>
-    <div class="p-3 border-r border-b border-black">
-        <div class="text-[9px] font-bold text-gray-500">OCCUPIED</div>
-        <div class="text-lg font-bold">
-            {% regroup tables by status as status_list %}
-            {% for status in status_list %}
-                {% if status.grouper == 'occupied' %}{{ status.list|length }}{% endif %}
-            {% endfor %}
+    <div class="col-6 col-md-3">
+        <div class="card elevation-1 border-0">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-2">
+                    <span class="material-symbols-outlined text-green-500 me-2" style="font-size: 20px;">check_circle</span>
+                    <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">Available</span>
+                </div>
+                <h4 class="fw-bold mb-0 text-green-600">
+                    {% regroup tables by status as status_list %}
+                    {% for status in status_list %}
+                        {% if status.grouper == 'available' %}{{ status.list|length }}{% endif %}
+                    {% endfor %}
+                    {% if not tables %}-{% endif %}
+                </h4>
+            </div>
         </div>
     </div>
-    <div class="p-3 border-r border-b border-black">
-        <div class="text-[9px] font-bold text-gray-500">RESERVED</div>
-        <div class="text-lg font-bold">
-            {% regroup tables by status as status_list %}
-            {% for status in status_list %}
-                {% if status.grouper == 'reserved' %}{{ status.list|length }}{% endif %}
-            {% endfor %}
+    <div class="col-6 col-md-3">
+        <div class="card elevation-1 border-0">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-2">
+                    <span class="material-symbols-outlined text-blue-500 me-2" style="font-size: 20px;">person_add</span>
+                    <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">Occupied</span>
+                </div>
+                <h4 class="fw-bold mb-0 text-blue-600">
+                    {% regroup tables by status as status_list %}
+                    {% for status in status_list %}
+                        {% if status.grouper == 'occupied' %}{{ status.list|length }}{% endif %}
+                    {% endfor %}
+                </h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card elevation-1 border-0">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-2">
+                    <span class="material-symbols-outlined text-amber-500 me-2" style="font-size: 20px;">bookmark_added</span>
+                    <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">Reserved</span>
+                </div>
+                <h4 class="fw-bold mb-0 text-amber-600">
+                    {% regroup tables by status as status_list %}
+                    {% for status in status_list %}
+                        {% if status.grouper == 'reserved' %}{{ status.list|length }}{% endif %}
+                    {% endfor %}
+                </h4>
+            </div>
         </div>
     </div>
 </div>
 
-<div class="mb-6 flex justify-between items-center">
-    <a href="{% url 'table_add' %}" class="px-4 py-2 bg-black text-white text-[10px] font-bold uppercase hover:bg-gray-800 transition-colors">
-        + ADD_STATION
+<div class="d-flex justify-content-between align-items-center mb-6">
+    <h5 class="mb-0 fw-bold text-gray-800">Live Station Map</h5>
+    <a href="{% url 'table_add' %}" class="btn btn-mui-primary flex items-center">
+        <span class="material-symbols-outlined me-2">add_circle</span> Add Station
     </a>
 </div>
 
 <!-- Table Grid -->
-<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-6 g-4">
     {% for table in tables %}
-    <div class="border border-black flex flex-col p-4 {% if table.status == 'occupied' %}bg-gray-50{% endif %}">
-        <div class="flex justify-between items-start mb-4">
-            <div>
-                <div class="text-[10px] font-bold text-gray-400">STATION</div>
-                <div class="text-2xl font-bold tracking-tighter">#{{ table.number }}</div>
-            </div>
-            <div class="text-[10px] font-bold border border-black px-1.5 py-0.5">
-                {{ table.capacity }}P
-            </div>
-        </div>
-
-        <div class="flex-1 py-4 flex flex-col items-center justify-center">
-            <div class="text-[10px] font-bold uppercase mb-1">
-                {% if table.status == 'occupied' %}!!! OCCUPIED !!!{% else %}{{ table.status|upper }}{% endif %}
-            </div>
-            {% if table.status == 'occupied' %}
-                {% with latest_order=table.orders.last %}
-                    {% if latest_order and latest_order.status != 'paid' %}
-                    <div class="text-lg font-bold">${{ latest_order.total_price|floatformat:2 }}</div>
-                    {% endif %}
-                {% endwith %}
-            {% endif %}
-        </div>
-
-        <div class="pt-4 border-t border-black space-y-2">
-            {% if table.status == 'available' %}
-                <a href="{% url 'create_order' table.id %}" class="block w-full text-center py-2 bg-black text-white text-[10px] font-bold uppercase hover:bg-gray-800 transition-colors">
-                    OPEN_STATION
-                </a>
-            {% elif table.status == 'occupied' %}
-                {% with latest_order=table.orders.last %}
-                    {% if latest_order and latest_order.status != 'paid' %}
-                        <a href="{% url 'order_detail' latest_order.id %}" class="block w-full text-center py-2 border border-black text-[10px] font-bold uppercase hover:bg-black hover:text-white transition-colors">
-                            MANAGE_STATION
-                        </a>
-                    {% else %}
-                        <a href="{% url 'create_order' table.id %}" class="block w-full text-center py-2 bg-black text-white text-[10px] font-bold uppercase">
-                            RE_OPEN
-                        </a>
-                    {% endif %}
-                {% endwith %}
-            {% else %}
-                <div class="w-full text-center py-2 bg-gray-200 text-gray-500 text-[10px] font-bold uppercase cursor-not-allowed">
-                    RESERVED
+    <div class="col">
+        <div class="card h-100 border-0 elevation-1 hover-elevation-4 transition-all duration-300">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-start mb-4">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center me-3 
+                            {% if table.status == 'available' %}bg-green-50 text-green-600{% elif table.status == 'occupied' %}bg-blue-50 text-blue-600{% else %}bg-amber-50 text-amber-600{% endif %}">
+                            <span class="material-symbols-outlined">table_bar</span>
+                        </div>
+                        <div>
+                            <span class="text-xs font-medium text-gray-400 uppercase">Station</span>
+                            <h5 class="fw-bold mb-0">#{{ table.number }}</h5>
+                        </div>
+                    </div>
+                    <span class="badge rounded-pill bg-gray-100 text-gray-600 px-2 py-1 text-xs">
+                        <span class="material-symbols-outlined align-middle me-1" style="font-size: 14px;">groups</span>{{ table.capacity }}
+                    </span>
                 </div>
-            {% endif %}
-            
-            <a href="{% url 'table_edit' table.id %}" class="block text-center text-[9px] font-bold underline uppercase">STATION_CONFIG</a>
+
+                <div class="text-center py-4">
+                    <div class="text-xs font-bold uppercase mb-2 tracking-widest
+                        {% if table.status == 'available' %}text-green-600{% elif table.status == 'occupied' %}text-blue-600{% else %}text-amber-600{% endif %}">
+                        {% if table.status == 'occupied' %}Active Service{% else %}{{ table.status|upper }}{% endif %}
+                    </div>
+                    {% if table.status == 'occupied' %}
+                        {% with latest_order=table.orders.last %}
+                            {% if latest_order and latest_order.status != 'paid' %}
+                            <h4 class="fw-bold text-gray-800">${{ latest_order.total_price|floatformat:2 }}</h4>
+                            <span class="text-xs text-gray-400">Current Tab</span>
+                            {% endif %}
+                        {% endwith %}
+                    {% endif %}
+                </div>
+
+                <div class="mt-4 pt-4 border-top">
+                    {% if table.status == 'available' %}
+                        <a href="{% url 'create_order' table.id %}" class="btn btn-outline-primary w-full rounded-pill fw-bold text-sm">
+                            Open Station
+                        </a>
+                    {% elif table.status == 'occupied' %}
+                        {% with latest_order=table.orders.last %}
+                            {% if latest_order and latest_order.status != 'paid' %}
+                                <a href="{% url 'order_detail' latest_order.id %}" class="btn btn-primary w-full rounded-pill fw-bold text-sm elevation-1">
+                                    Manage Service
+                                </a>
+                            {% else %}
+                                <a href="{% url 'create_order' table.id %}" class="btn btn-outline-primary w-full rounded-pill fw-bold text-sm">
+                                    Re-Open
+                                </a>
+                            {% endif %}
+                        {% endwith %}
+                    {% else %}
+                        <button class="btn btn-light w-full rounded-pill fw-bold text-sm text-muted cursor-not-allowed" disabled>
+                            Reserved
+                        </button>
+                    {% endif %}
+                    
+                    <a href="{% url 'table_edit' table.id %}" class="btn btn-link w-full text-xs text-gray-400 text-decoration-none mt-2">
+                        Station Config
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
     {% endfor %}
 </div>
+
+<style>
+    .hover-elevation-4:hover {
+        transform: translateY(-4px);
+        box-shadow: 0px 2px 4px -1px rgba(0,0,0,0.2),0px 4px 5px 0px rgba(0,0,0,0.14),0px 1px 10px 0px rgba(0,0,0,0.12) !important;
+    }
+</style>
 {% endblock %}
