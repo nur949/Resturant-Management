@@ -15,14 +15,21 @@ def toggle_user_status(request):
             return JsonResponse({'status': 'success', 'is_active': user.is_active})
     return JsonResponse({'status': 'error'}, status=400)
 
+import secrets
+import string
+
 def reset_user_password(request):
     if request.method == 'POST' and request.user.is_superuser:
         user_id = request.POST.get('user_id')
         user = get_object_or_404(User, id=user_id)
-        # For simplicity, resetting to a default password like 'resto123'
-        user.set_password('resto123')
+        
+        # Generate a secure random password
+        alphabet = string.ascii_letters + string.digits + string.punctuation
+        temp_password = ''.join(secrets.choice(alphabet) for i in range(12))
+        
+        user.set_password(temp_password)
         user.save()
-        return JsonResponse({'status': 'success', 'message': 'Password reset to: resto123'})
+        return JsonResponse({'status': 'success', 'message': f'Password reset to: {temp_password}'})
     return JsonResponse({'status': 'error'}, status=400)
 
 def add_order_item(request):

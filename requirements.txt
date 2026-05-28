@@ -12,3 +12,5 @@ redis
 django-filter
 drf-yasg
 dj-database-url
+django-csp
+django-axes
