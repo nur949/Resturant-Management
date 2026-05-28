@@ -1,192 +1,102 @@
 {% extends 'core/base.html' %}
 
-{% block page_title %}Enterprise Dashboard{% endblock %}
+{% block page_title %}SYSTEM_OVERVIEW{% endblock %}
 
 {% block content %}
-<!-- KPI Banner -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
-    <!-- Revenue Card -->
-    <div class="kpi-card">
-        <div class="kpi-icon-box bg-emerald/10 text-emerald">
-            <i class="fas fa-dollar-sign"></i>
-        </div>
-        <div class="kpi-label">Today's Revenue</div>
-        <div class="kpi-value text-slate-900 dark:text-white">${{ today_sales|floatformat:2 }}</div>
-        <div class="kpi-trend text-slate-400">
-            Monthly: <span class="font-bold text-slate-900 dark:text-white">${{ month_sales|floatformat:2 }}</span>
-        </div>
+<!-- KPI Stats -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-0 border-t border-l border-black mb-8">
+    <div class="p-4 border-r border-b border-black">
+        <div class="text-[10px] font-bold text-gray-500 uppercase">REVENUE_TODAY</div>
+        <div class="text-xl font-bold">${{ today_sales|floatformat:2 }}</div>
     </div>
-
-    <!-- Expenses Card -->
-    <div class="kpi-card">
-        <div class="kpi-icon-box bg-rose/10 text-rose">
-            <i class="fas fa-file-invoice-dollar"></i>
-        </div>
-        <div class="kpi-label">Today's Expenses</div>
-        <div class="kpi-value text-slate-900 dark:text-white">${{ today_expenses|floatformat:2 }}</div>
-        <div class="kpi-trend text-slate-400">
-            Monthly: <span class="font-bold text-slate-900 dark:text-white">${{ month_expenses|floatformat:2 }}</span>
-        </div>
+    <div class="p-4 border-r border-b border-black">
+        <div class="text-[10px] font-bold text-gray-500 uppercase">EXPENSES_TODAY</div>
+        <div class="text-xl font-bold">${{ today_expenses|floatformat:2 }}</div>
     </div>
-
-    <!-- Active Orders Card -->
-    <div class="kpi-card">
-        <div class="kpi-icon-box bg-primary/10 text-primary">
-            <i class="fas fa-shopping-bag"></i>
-        </div>
-        <div class="kpi-label">Active Orders</div>
-        <div class="kpi-value text-slate-900 dark:text-white">{{ pending_orders }}</div>
-        <div class="kpi-trend text-slate-400">
-            Total Today: <span class="font-bold">{{ total_orders }}</span>
-        </div>
+    <div class="p-4 border-r border-b border-black">
+        <div class="text-[10px] font-bold text-gray-500 uppercase">ACTIVE_ORDERS</div>
+        <div class="text-xl font-bold">{{ pending_orders }}</div>
     </div>
-
-    <!-- Reservations Card -->
-    <div class="kpi-card">
-        <div class="kpi-icon-box bg-info/10 text-info">
-            <i class="fas fa-calendar-check"></i>
-        </div>
-        <div class="kpi-label">Reservations</div>
-        <div class="kpi-value text-slate-900 dark:text-white">{{ today_reservations_count }}</div>
-        <div class="kpi-trend text-slate-400">
-            Bookings for today
-        </div>
+    <div class="p-4 border-r border-b border-black">
+        <div class="text-[10px] font-bold text-gray-500 uppercase">BOOKINGS</div>
+        <div class="text-xl font-bold">{{ today_reservations_count }}</div>
     </div>
-
-    <!-- Occupancy Card -->
-    <div class="kpi-card">
-        <div class="kpi-icon-box bg-amber/10 text-amber">
-            <i class="fas fa-users"></i>
-        </div>
-        <div class="kpi-label">Occupancy</div>
-        <div class="kpi-value text-slate-900 dark:text-white">{{ occupied_tables }} / {{ total_tables }}</div>
-        <div class="kpi-trend text-slate-400">
-            Tables in use
-        </div>
+    <div class="p-4 border-r border-b border-black bg-black text-white">
+        <div class="text-[10px] font-bold text-gray-400 uppercase">TABLE_OCCUPANCY</div>
+        <div class="text-xl font-bold">{{ occupied_tables }}/{{ total_tables }}</div>
     </div>
 </div>
 
-<!-- Main Dashboard Grid -->
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-    
-    <!-- Analytics Chart -->
-    <div class="lg:col-span-2 card bg-white dark:bg-charcoal border border-slate-200 dark:border-white/5 rounded-[24px] p-6">
-        <div class="flex justify-between items-center mb-6">
-            <div>
-                <h3 class="text-lg font-bold">Financial Performance</h3>
-                <p class="text-xs text-slate-500">Revenue vs Expenses (Last 7 Days)</p>
-            </div>
-            <div class="flex space-x-4">
-                <span class="flex items-center text-[10px] font-bold text-slate-500">
-                    <span class="w-3 h-3 rounded-full bg-primary mr-2"></span> REVENUE
-                </span>
-                <span class="flex items-center text-[10px] font-bold text-slate-500">
-                    <span class="w-3 h-3 rounded-full bg-slate-400 mr-2"></span> EXPENSES
-                </span>
-            </div>
+    <!-- Live Feed -->
+    <div class="lg:col-span-2 border border-black">
+        <div class="p-3 bg-black text-white text-xs font-bold uppercase tracking-widest">
+            FINANCIAL_CHART
         </div>
-        <div id="revenueChart" class="h-[350px]"></div>
+        <div class="p-4">
+            <div id="revenueChart" class="h-64"></div>
+        </div>
     </div>
 
-    <!-- Operational Feed & Alerts -->
-    <div class="space-y-8">
+    <div class="space-y-6">
         <!-- Stock Alerts -->
         {% if low_stock_count > 0 %}
-        <div class="card bg-rose/5 border border-rose/20 rounded-[24px] p-6">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-sm font-bold text-rose">Inventory Alerts</h3>
-                <span class="px-2 py-0.5 bg-rose/10 text-rose text-[10px] font-bold rounded-full">{{ low_stock_count }} Low</span>
-            </div>
-            <p class="text-xs text-rose/70 mb-4">Some ingredients are below threshold and need restocking.</p>
-            <a href="{% url 'ingredient_list' %}" class="inline-flex items-center text-xs font-bold text-rose hover:underline">
-                View Inventory <i class="fas fa-arrow-right ml-2"></i>
-            </a>
+        <div class="border border-red-600 p-4">
+            <div class="text-xs font-bold text-red-600 uppercase mb-2">!!! STOCK_ALERTS !!!</div>
+            <div class="text-[10px] mb-3">{{ low_stock_count }} items below threshold.</div>
+            <a href="{% url 'ingredient_list' %}" class="text-[10px] font-bold underline">RESOLVE_INVENTORY</a>
         </div>
         {% endif %}
 
-        <!-- Live Kitchen Feed -->
-        <div class="card bg-white dark:bg-charcoal border border-slate-200 dark:border-white/5 rounded-[24px] p-6">
-            <h3 class="text-lg font-bold mb-6">Live Kitchen Feed</h3>
-            <div class="space-y-6">
+        <!-- Active Feed -->
+        <div class="border border-black">
+            <div class="p-2 bg-black text-white text-[10px] font-bold uppercase tracking-wider">KITCHEN_FEED</div>
+            <div class="divide-y divide-black">
                 {% for order in recent_orders %}
-                <div class="flex items-start space-x-4">
-                    <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center shrink-0">
-                        <i class="fas fa-concierge-bell text-slate-400"></i>
+                <div class="p-3">
+                    <div class="flex justify-between text-[10px] font-bold mb-1">
+                        <span>TABLE_{{ order.table.number }}</span>
+                        <span>{{ order.created_at|date:"H:i" }}</span>
                     </div>
-                    <div class="flex-1">
-                        <div class="flex justify-between">
-                            <p class="text-xs font-bold">Table {{ order.table.number }}</p>
-                            <span class="text-[9px] font-bold text-slate-400">{{ order.created_at|date:"H:i" }}</span>
-                        </div>
-                        <p class="text-[10px] text-slate-500 mt-0.5">Order #{{ order.id }} - {{ order.get_status_display }}</p>
-                        <div class="mt-2 h-1.5 w-full bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden">
-                            <div class="h-full bg-primary transition-all duration-500" style="width: {% if order.status == 'pending' %}25%{% elif order.status == 'cooking' %}60%{% elif order.status == 'served' %}85%{% else %}100%{% endif %}"></div>
-                        </div>
-                    </div>
+                    <div class="text-[9px] uppercase">{{ order.get_status_display }}</div>
                 </div>
                 {% empty %}
-                <p class="text-center text-slate-400 py-10 text-xs">No active kitchen orders.</p>
+                <div class="p-4 text-[10px] text-gray-400 text-center uppercase">NO_ACTIVE_TASKS</div>
                 {% endfor %}
             </div>
         </div>
     </div>
 </div>
 
-<!-- Transactions Table -->
-<div class="card bg-white dark:bg-charcoal border border-slate-200 dark:border-white/5 rounded-[24px] mt-8 overflow-hidden">
-    <div class="p-6 border-b border-slate-100 dark:border-white/5 flex justify-between items-center">
-        <div>
-            <h3 class="text-lg font-bold">Recent Transactions</h3>
-            <p class="text-xs text-slate-500">Latest orders and their fulfillment status</p>
-        </div>
-        <a href="{% url 'order_list' %}" class="text-xs font-bold text-primary hover:underline">View All Orders</a>
+<!-- Recent Transactions -->
+<div class="mt-8 border border-black">
+    <div class="p-3 border-b border-black flex justify-between items-center">
+        <span class="text-xs font-bold uppercase">RECENT_TRANSACTIONS</span>
+        <a href="{% url 'order_list' %}" class="text-[10px] font-bold underline">VIEW_ALL_LOGS</a>
     </div>
     <div class="overflow-x-auto">
-        <table class="w-full text-left premium-table">
+        <table class="w-full text-left text-[10px] border-collapse">
             <thead>
-                <tr>
-                    <th>Invoice</th>
-                    <th>Customer / Table</th>
-                    <th>Status</th>
-                    <th>Payment</th>
-                    <th>Total</th>
-                    <th class="text-right">Action</th>
+                <tr class="bg-gray-50 border-b border-black">
+                    <th class="p-2 font-bold border-r border-black">INVOICE</th>
+                    <th class="p-2 font-bold border-r border-black">ENTITY</th>
+                    <th class="p-2 font-bold border-r border-black">STATUS</th>
+                    <th class="p-2 font-bold border-r border-black">TOTAL</th>
+                    <th class="p-2 font-bold">ACTION</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="divide-y divide-black">
                 {% for order in recent_orders %}
-                <tr class="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
-                    <td class="font-bold text-slate-900 dark:text-white">{{ order.invoice_number }}</td>
-                    <td>
-                        <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-white/5 flex items-center justify-center text-[10px] font-bold">T{{ order.table.number }}</div>
-                            <span class="text-xs font-medium">{{ order.customer.name|default:"Guest Customer" }}</span>
-                        </div>
+                <tr>
+                    <td class="p-2 border-r border-black font-bold uppercase">{{ order.invoice_number }}</td>
+                    <td class="p-2 border-r border-black">TABLE_{{ order.table.number }} / {{ order.customer.name|default:"GUEST"|upper }}</td>
+                    <td class="p-2 border-r border-black">
+                        <span class="px-1 border border-black {% if order.status == 'paid' %}bg-black text-white{% endif %}">{{ order.get_status_display|upper }}</span>
                     </td>
-                    <td>
-                        <span class="px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider
-                            {% if order.status == 'paid' %}bg-emerald/10 text-emerald border border-emerald/20
-                            {% elif order.status == 'pending' %}bg-amber/10 text-amber border border-amber/20
-                            {% elif order.status == 'cancelled' %}bg-rose/10 text-rose border border-rose/20
-                            {% else %}bg-primary/10 text-primary border border-primary/20{% endif %}">
-                            {{ order.get_status_display }}
-                        </span>
-                    </td>
-                    <td>
-                        <div class="flex items-center text-slate-500 text-[10px] font-bold uppercase">
-                            <i class="fas fa-credit-card mr-2"></i> {{ order.get_payment_method_display }}
-                        </div>
-                    </td>
-                    <td class="font-extrabold text-slate-900 dark:text-white">${{ order.total_price|floatformat:2 }}</td>
-                    <td class="text-right">
-                        <div class="flex justify-end space-x-2">
-                            <a href="{% url 'order_detail' order.id %}" class="p-2 text-slate-400 hover:text-primary transition-colors" title="View Detail">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                            <a href="{% url 'order_print' order.id %}" target="_blank" class="p-2 text-slate-400 hover:text-emerald transition-colors" title="Print Invoice">
-                                <i class="fas fa-print"></i>
-                            </a>
-                        </div>
+                    <td class="p-2 border-r border-black font-bold">${{ order.total_price|floatformat:2 }}</td>
+                    <td class="p-2 flex space-x-2">
+                        <a href="{% url 'order_detail' order.id %}" class="underline">[VIEW]</a>
+                        <a href="{% url 'order_print' order.id %}" target="_blank" class="underline">[PRINT]</a>
                     </td>
                 </tr>
                 {% endfor %}
@@ -200,72 +110,26 @@
 <script>
     var options = {
         series: [{
-            name: 'Revenue',
-            type: 'area',
+            name: 'REV',
             data: {{ chart_revenue|safe }}
         }, {
-            name: 'Expenses',
-            type: 'line',
+            name: 'EXP',
             data: {{ chart_expenses|safe }}
         }],
         chart: {
-            height: 350,
+            height: 250,
             type: 'line',
             toolbar: { show: false },
-            zoom: { enabled: false },
-            foreColor: '#94a3b8',
-            fontFamily: 'Plus Jakarta Sans'
+            fontFamily: 'monospace'
         },
-        stroke: {
-            width: [4, 4],
-            curve: 'smooth',
-            dashArray: [0, 8]
-        },
-        fill: {
-            type: 'gradient',
-            gradient: {
-                shadeIntensity: 1,
-                opacityFrom: [0.4, 0],
-                opacityTo: [0.1, 0],
-                stops: [0, 90, 100]
-            }
-        },
-        colors: ['#FF6B35', '#94a3b8'],
-        labels: {{ chart_days|safe }},
-        markers: {
-            size: 0,
-            hover: { sizeOffset: 6 }
-        },
-        xaxis: {
-            axisBorder: { show: false },
-            axisTicks: { show: false }
-        },
-        yaxis: {
-            labels: {
-                formatter: function (val) { return "$" + val.toFixed(0) }
-            }
-        },
-        grid: {
-            borderColor: 'rgba(148, 163, 184, 0.1)',
-            strokeDashArray: 4
-        },
-        tooltip: {
-            theme: 'dark',
-            shared: true,
-            intersect: false,
-            y: {
-                formatter: function (y) {
-                    if (typeof y !== "undefined") {
-                        return "$" + y.toFixed(2);
-                    }
-                    return y;
-                }
-            }
-        },
-        legend: { show: false }
+        colors: ['#000000', '#999999'],
+        stroke: { width: 2, curve: 'straight' },
+        markers: { size: 4, shape: 'square' },
+        xaxis: { categories: {{ chart_days|safe }}, axisBorder: { show: true, color: '#000' } },
+        yaxis: { labels: { formatter: function (v) { return "$" + v } } },
+        grid: { borderColor: '#eeeeee' },
+        legend: { position: 'top', horizontalAlign: 'right', fontMedium: '10px' }
     };
-
-    var chart = new ApexCharts(document.querySelector("#revenueChart"), options);
-    chart.render();
+    new ApexCharts(document.querySelector("#revenueChart"), options).render();
 </script>
 {% endblock %}
