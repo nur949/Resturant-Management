@@ -1,3 +1,4 @@
+dj-database-url
 Django
 djangorestframework
 Pillow
@@ -10,3 +11,4 @@ celery
 redis
 django-filter
 drf-yasg
+dj-database-url
