@@ -1,0 +1,158 @@
+{% extends 'core/base.html' %}
+{% load inventory_extras %}
+
+{% block page_title %}Enterprise Inventory & Supply Chain{% endblock %}
+
+{% block content %}
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon icon-blue"><i class="fas fa-boxes"></i></div>
+        <div class="stat-info">
+            <h3>Total Stock Items</h3>
+            <p>{{ ingredients.count }}</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background: #fee2e2; color: #ef4444;"><i class="fas fa-exclamation-triangle"></i></div>
+        <div class="stat-info">
+            <h3>Low Stock Alerts</h3>
+            <p>{{ low_stock_count }}</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon icon-green"><i class="fas fa-file-invoice-dollar"></i></div>
+        <div class="stat-info">
+            <h3>Inventory Asset Value</h3>
+            <p>${{ total_inventory_value|floatformat:2 }}</p>
+        </div>
+    </div>
+</div>
+
+<div class="d-flex justify-between align-center mb-2">
+    <a href="{% url 'ingredient_add' %}" class="btn btn-primary">
+        <i class="fas fa-plus-circle"></i> Register New Ingredient
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body" style="padding: 0;">
+        <div class="data-table-container" style="border: none; border-radius: 0;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Ingredient Details</th>
+                        <th>Stock Status</th>
+                        <th>Available Quantity</th>
+                        <th>Unit Cost</th>
+                        <th>Net Value</th>
+                        <th class="text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in ingredients %}
+                    <tr style="{% if item.stock_status == 'out_of_stock' %}background: #fff1f2;{% elif item.stock_status == 'low_stock' %}background: #fffbeb;{% endif %}">
+                        <td>
+                            <div class="d-flex align-center">
+                                <div style="margin-right: 12px;">
+                                    <strong style="font-size: 13px; color: var(--text-main);">{{ item.name }}</strong><br>
+                                    <span class="text-muted" style="font-size: 10px; font-weight: 600;">CODE: #STK-{{ item.id|stringformat:"04d" }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if item.stock_status == 'out_of_stock' %}
+                                <span class="badge" style="background: #ef4444; color: #fff;">OUT OF STOCK</span>
+                            {% elif item.stock_status == 'low_stock' %}
+                                <span class="badge" style="background: #f59e0b; color: #fff;">LOW STOCK</span>
+                            {% else %}
+                                <span class="badge" style="background: #10b981; color: #fff;">HEALTHY</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="bold" style="font-size: 14px; color: var(--text-main);">{{ item.current_stock }}</span> 
+                            <span class="text-muted" style="font-size: 11px;">{{ item.get_unit_display }}</span>
+                        </td>
+                        <td class="text-muted">${{ item.cost_per_unit }}</td>
+                        <td class="bold" style="color: var(--primary);">${{ item.current_stock|multiply:item.cost_per_unit|floatformat:2 }}</td>
+                        <td class="text-right">
+                            <div class="d-flex justify-end gap-10">
+                                <button class="btn btn-sm" style="background: var(--primary); color: white; border: none;" onclick="openLedgerModal('{{ item.id }}', '{{ item.name }}', '{{ item.get_unit_display }}')">
+                                    <i class="fas fa-plus"></i> Ledger
+                                </button>
+                                <div class="action-dropdown">
+                                    <button class="action-btn-toggle" style="padding: 4px 8px;"><i class="fas fa-ellipsis-v"></i></button>
+                                    <div class="action-menu-content">
+                                        <a href="{% url 'ingredient_edit' item.id %}"><i class="fas fa-edit"></i> Edit Details</a>
+                                        <a href="{% url 'ingredient_delete' item.id %}" class="delete-action"><i class="fas fa-trash-alt"></i> Remove Item</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Professional Enterprise Modal -->
+<div id="ledgerModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalTitle">Inventory Ledger Update</h3>
+            <i class="fas fa-times" style="cursor: pointer; opacity: 0.5;" onclick="closeLedgerModal()"></i>
+        </div>
+        <form id="ledgerForm" method="post">
+            <div class="modal-body">
+                {% csrf_token %}
+                <div class="form-group mb-2">
+                    <label class="text-muted" style="font-size: 10px; text-transform: uppercase; letter-spacing: 1px;">Transaction Type</label>
+                    <select name="action_type" class="form-control" style="background: #f8fafc; font-weight: 600;">
+                        <option value="purchase">Purchase / Restock (+)</option>
+                        <option value="waste">Report Waste (-)</option>
+                        <option value="adjustment">Manual Adjustment (Set)</option>
+                    </select>
+                </div>
+                <div class="form-group mb-2">
+                    <label class="text-muted" style="font-size: 10px; text-transform: uppercase; letter-spacing: 1px;">Quantity (<span id="unitSpan">unit</span>)</label>
+                    <input type="number" name="amount" step="0.001" class="form-control" placeholder="0.000" required>
+                </div>
+                <div class="form-group mb-0">
+                    <label class="text-muted" style="font-size: 10px; text-transform: uppercase; letter-spacing: 1px;">Internal Notes</label>
+                    <textarea name="notes" class="form-control" rows="2" placeholder="Describe this movement (e.g. Procured from local market)"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeLedgerModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Transaction
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .justify-end { justify-content: flex-end; }
+</style>
+
+<script>
+    function openLedgerModal(id, name, unit) {
+        document.getElementById('modalTitle').innerText = 'Stock Ledger: ' + name;
+        document.getElementById('unitSpan').innerText = unit;
+        document.getElementById('ledgerForm').action = '/inventory/update-stock/' + id + '/';
+        document.getElementById('ledgerModal').style.display = 'flex';
+    }
+    function closeLedgerModal() {
+        document.getElementById('ledgerModal').style.display = 'none';
+    }
+    // Close modal if clicked outside
+    window.onclick = function(event) {
+        const modal = document.getElementById('ledgerModal');
+        if (event.target == modal) {
+            closeLedgerModal();
+        }
+    }
+</script>
+{% endblock %}

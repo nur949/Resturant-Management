@@ -1,0 +1,168 @@
+{% extends 'core/base.html' %}
+
+{% block page_title %}System Configuration & Management{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <!-- Enterprise Tabs -->
+        <div class="tabs-container">
+            <div class="tabs-header d-flex gap-10 mb-2" style="border-bottom: 2px solid #f1f5f9;">
+                <button class="tab-btn active" onclick="showTab('general')">General Settings</button>
+                <button class="tab-btn" onclick="showTab('users')">Staff Management</button>
+                <button class="tab-btn" onclick="showTab('finance')">Financial Config</button>
+            </div>
+
+            <!-- General Tab -->
+            <div id="general" class="tab-content show">
+                <div class="d-flex justify-between align-center mb-2">
+                    <h3 style="font-size: 16px; font-weight: 700;">Restaurant Identity</h3>
+                    <a href="{% url 'settings_update' %}" class="btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit Identity</a>
+                </div>
+                <div class="settings-grid">
+                    <div class="settings-item">
+                        <label>Restaurant Name</label>
+                        <p class="bold">{{ settings.name }}</p>
+                    </div>
+                    <div class="settings-item">
+                        <label>Tagline</label>
+                        <p>{{ settings.tagline }}</p>
+                    </div>
+                    <div class="settings-item">
+                        <label>TRN Number</label>
+                        <p class="bold">{{ settings.trn_number|default:"Not Set" }}</p>
+                    </div>
+                    <div class="settings-item">
+                        <label>Contact Phone</label>
+                        <p>{{ settings.phone|default:"Not Set" }}</p>
+                    </div>
+                    <div class="settings-item">
+                        <label>Email Address</label>
+                        <p>{{ settings.email|default:"Not Set" }}</p>
+                    </div>
+                    <div class="settings-item" style="grid-column: span 2;">
+                        <label>Physical Address</label>
+                        <p>{{ settings.address|default:"Not Set" }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Tab -->
+            <div id="users" class="tab-content">
+                <div class="d-flex justify-between align-center mb-2">
+                    <h3 style="font-size: 16px; font-weight: 700;">Authorized Staff Members</h3>
+                    <a href="{% url 'user_add' %}" class="btn btn-primary btn-sm"><i class="fas fa-user-plus"></i> Add New Staff</a>
+                </div>
+                <div class="data-table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Full Name</th>
+                                <th>Username</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th class="text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for u in users %}
+                            <tr>
+                                <td>{{ u.get_full_name|default:u.username }}</td>
+                                <td class="bold">{{ u.username }}</td>
+                                <td>
+                                    {% if u.is_superuser %}
+                                        <span class="badge" style="background: #e0e7ff; color: #4338ca;">ADMINISTRATOR</span>
+                                    {% else %}
+                                        <span class="badge" style="background: #f1f5f9; color: #475569;">STAFF</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if u.is_active %}
+                                        <span class="badge badge-available">ACTIVE</span>
+                                    {% else %}
+                                        <span class="badge badge-occupied">INACTIVE</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-right">
+                                    <div class="action-dropdown">
+                                        <button class="action-btn-toggle" style="padding: 2px 6px;"><i class="fas fa-ellipsis-v"></i></button>
+                                        <div class="action-menu-content">
+                                            <a href="{% url 'user_edit' u.id %}"><i class="fas fa-user-edit"></i> Edit Account</a>
+                                            <a href="{% url 'user_delete' u.id %}" class="delete-action"><i class="fas fa-user-minus"></i> Remove Staff</a>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Finance Tab -->
+            <div id="finance" class="tab-content">
+                <div class="d-flex justify-between align-center mb-2">
+                    <h3 style="font-size: 16px; font-weight: 700;">Financial & Tax Configuration</h3>
+                    <a href="{% url 'settings_update' %}" class="btn btn-primary btn-sm"><i class="fas fa-edit"></i> Update Rates</a>
+                </div>
+                <div class="settings-grid">
+                    <div class="settings-item">
+                        <label>Currency Symbol</label>
+                        <p class="bold" style="font-size: 18px;">{{ settings.currency_symbol }}</p>
+                    </div>
+                    <div class="settings-item">
+                        <label>Standard Tax Rate (VAT)</label>
+                        <p class="bold" style="font-size: 18px;">{{ settings.default_tax_rate }}%</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .tab-btn {
+        background: none;
+        border: none;
+        padding: 12px 20px;
+        font-weight: 600;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: 0.2s;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -2px;
+    }
+    .tab-btn:hover { color: var(--primary); }
+    .tab-btn.active {
+        color: var(--primary);
+        border-bottom-color: var(--primary);
+    }
+    .tab-content { display: none; padding-top: 20px; }
+    .tab-content.show { display: block; animation: fadeIn 0.3s; }
+    
+    .settings-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+    }
+    .settings-item label {
+        display: block;
+        font-size: 10px;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+    .settings-item p { font-size: 13px; color: var(--text-main); }
+</style>
+
+<script>
+    function showTab(id) {
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('show'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        
+        document.getElementById(id).classList.add('show');
+        event.currentTarget.classList.add('active');
+    }
+</script>
+{% endblock %}

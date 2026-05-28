@@ -1,0 +1,190 @@
+{% extends 'core/base.html' %}
+
+{% block page_title %}Order Terminal #{{ order.invoice_number }}{% endblock %}
+
+{% block content %}
+<div class="pos-grid">
+    <!-- Left: Menu Selection -->
+    <div class="flex flex-col space-y-6 overflow-hidden">
+        <div class="flex justify-between items-center">
+            <div class="pos-search-box flex-1 max-w-md">
+                <i class="fas fa-search text-slate-400"></i>
+                <input type="text" id="menu-search" placeholder="Search menu items..." class="bg-transparent border-none outline-none text-xs font-bold w-full">
+            </div>
+            <div class="flex gap-3">
+                <span class="badge" style="background: var(--primary); color: #fff; padding: 8px 16px;">TABLE {{ order.table.number }}</span>
+                <span class="badge" style="background: #f1f5f9; color: var(--text-main); padding: 8px 16px;">GUESTS: {{ order.table.capacity }}</span>
+            </div>
+        </div>
+
+        <!-- Category Tabs -->
+        <div class="category-strip border-none mb-0 pb-2">
+            <div class="category-chip active" onclick="filterByCategory('all', this)">All Category</div>
+            {% for cat in categories %}
+                <div class="category-chip" onclick="filterByCategory('{{ cat.name }}', this)">{{ cat.name }}</div>
+            {% endfor %}
+        </div>
+
+        <!-- Touch-Friendly Menu Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 overflow-y-auto pr-2">
+            {% for item in menu_items %}
+            <div class="menu-card-v2 cursor-pointer add-item-btn" data-order-id="{{ order.id }}" data-item-id="{{ item.id }}">
+                <div class="price-badge-v2">${{ item.price }}</div>
+                <div class="h-32 bg-slate-100 dark:bg-white/5 overflow-hidden">
+                    {% if item.image %}
+                        <img src="{{ item.image.url }}" class="w-full h-full object-cover">
+                    {% else %}
+                        <div class="w-full h-full flex items-center justify-center"><i class="fas fa-utensils text-slate-300 fa-2x"></i></div>
+                    {% endif %}
+                </div>
+                <div class="p-4">
+                    <p class="menu-item-cat">{{ item.category.name }}</p>
+                    <h4 class="font-bold text-xs truncate">{{ item.name }}</h4>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Right: Animated Cart Sidebar -->
+    <div class="pos-cart-panel overflow-hidden">
+        <div class="p-6 border-b border-slate-100 dark:border-white/5">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-extrabold tracking-tight">Active Cart</h3>
+                <span class="text-[10px] font-bold text-slate-400 bg-slate-50 dark:bg-white/5 px-2 py-1 rounded">{{ order.items.count }} ITEMS</span>
+            </div>
+            <div class="flex items-center space-x-3 p-3 bg-primary/5 rounded-2xl border border-primary/10">
+                <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-[10px] font-bold">JD</div>
+                <div>
+                    <p class="text-[10px] font-bold">{{ order.staff.get_full_name|default:order.staff.username }}</p>
+                    <p class="text-[9px] text-primary uppercase font-bold tracking-wider">Serving Staff</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cart Items -->
+        <div class="flex-1 overflow-y-auto py-2">
+            {% for item in order.items.all %}
+            <div class="cart-item">
+                <div class="flex items-center space-x-4">
+                    <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-white/5 flex items-center justify-center font-bold text-xs">{{ item.quantity }}x</div>
+                    <div>
+                        <p class="text-xs font-bold text-slate-800 dark:text-white">{{ item.menu_item.name }}</p>
+                        <p class="text-[10px] text-slate-400">${{ item.price }} / unit</p>
+                    </div>
+                </div>
+                <p class="text-xs font-extrabold text-primary">${{ item.get_total_item_price }}</p>
+            </div>
+            {% empty %}
+            <div class="h-full flex flex-col items-center justify-center text-center p-10">
+                <i class="fas fa-shopping-basket text-slate-200 fa-4x mb-4"></i>
+                <p class="text-slate-400 font-bold text-sm">Cart is currently empty</p>
+                <p class="text-[10px] text-slate-400 mt-1">Select items from the left to begin</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Summary & Checkout -->
+        <div class="p-8 bg-slate-50 dark:bg-dark/30 border-t border-slate-100 dark:border-white/5">
+            <div class="space-y-3 mb-6">
+                <div class="flex justify-between text-xs font-medium text-slate-500">
+                    <span>Subtotal</span>
+                    <span>${{ order.subtotal }}</span>
+                </div>
+                <div class="flex justify-between text-xs font-medium text-slate-500">
+                    <div class="flex items-center">
+                         <span>VAT ({{ order.tax_rate }}%)</span>
+                         <i class="fas fa-info-circle ml-2 opacity-50 cursor-help"></i>
+                    </div>
+                    <span>${{ order.tax_amount }}</span>
+                </div>
+                <div class="pt-3 border-t border-dashed border-slate-200 dark:border-white/10 flex justify-between">
+                    <span class="text-sm font-extrabold">Total Amount</span>
+                    <span class="text-xl font-black text-primary">${{ order.total_price }}</span>
+                </div>
+            </div>
+            
+            <div class="flex gap-4">
+                <button class="flex-1 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 p-4 rounded-2xl font-bold text-[11px] hover:bg-slate-100 transition-all" onclick="window.open('{% url 'order_print' order.id %}', '_blank')">
+                    <i class="fas fa-print mr-2"></i> RECEIPT
+                </button>
+                <div class="relative flex-[2]" x-data="{ open: false }">
+                    <button @click="open = !open" class="pos-checkout-btn">
+                        <i class="fas fa-check-circle mr-2"></i> CHECKOUT
+                    </button>
+                    <!-- Quick Checkout Menu -->
+                    <div x-show="open" @click.outside="open = false" class="absolute bottom-full left-0 right-0 mb-4 glass-panel rounded-2xl p-4 space-y-3">
+                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center mb-2">Select Payment Method</p>
+                         <div class="grid grid-cols-2 gap-2">
+                             <button class="p-3 bg-slate-50 dark:bg-white/5 rounded-xl border border-slate-100 dark:border-white/10 font-bold text-[10px] flex flex-col items-center gap-2 hover:border-emerald hover:text-emerald transition-all" onclick="updateOrderStatus('paid', 'cash')">
+                                 <i class="fas fa-money-bill-wave"></i> CASH
+                             </button>
+                             <button class="p-3 bg-slate-50 dark:bg-white/5 rounded-xl border border-slate-100 dark:border-white/10 font-bold text-[10px] flex flex-col items-center gap-2 hover:border-info hover:text-info transition-all" onclick="updateOrderStatus('paid', 'card')">
+                                 <i class="fas fa-credit-card"></i> CARD
+                             </button>
+                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateOrderStatus(status, method) {
+        const formData = new FormData();
+        formData.append('order_id', '{{ order.id }}');
+        formData.append('status', status);
+        formData.append('payment_method', method);
+        formData.append('tax_rate', '{{ order.tax_rate }}');
+
+        fetch('/ajax/update-order-status/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                window.location.href = '/orders/';
+            }
+        });
+    }
+
+    // Menu Search Handler
+    document.getElementById('menu-search').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const cards = document.querySelectorAll('.menu-card-v2');
+        
+        cards.forEach(card => {
+            const name = card.querySelector('h4').innerText.toLowerCase();
+            const category = card.querySelector('.menu-item-cat').innerText.toLowerCase();
+            
+            if (name.includes(searchTerm) || category.includes(searchTerm)) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+
+    // Category Filter Handler
+    function filterByCategory(catName, btn) {
+        // Update active state
+        document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+
+        const cards = document.querySelectorAll('.menu-card-v2');
+        cards.forEach(card => {
+            const itemCat = card.querySelector('.menu-item-cat').innerText;
+            if (catName === 'all' || itemCat === catName) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends 'core/base.html' %}
+
+{% block page_title %}Customer Relationship Management (CRM){% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <a href="{% url 'customer_add' %}" class="btn bg-primary text-white shadow-lg shadow-primary/30">
+        <i class="fas fa-user-plus"></i> <span>Onboard New Customer</span>
+    </a>
+</div>
+
+<div class="card bg-white dark:bg-charcoal border border-slate-200 dark:border-white/5 rounded-[24px] overflow-hidden">
+    <div class="p-6 border-b border-slate-100 dark:border-white/5">
+        <h3 class="text-lg font-bold">Loyalty & Profiles</h3>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-left premium-table">
+            <thead>
+                <tr>
+                    <th>Customer Identity</th>
+                    <th>Communication</th>
+                    <th>Loyalty Points</th>
+                    <th>Join Date</th>
+                    <th class="text-right">Operations</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for customer in customers %}
+                <tr class="hover:bg-slate-50 dark:hover:bg-white/5">
+                    <td>
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-black text-xs uppercase">{{ customer.name|first }}</div>
+                            <span class="font-bold text-slate-900 dark:text-white text-xs">{{ customer.name }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="flex flex-col">
+                            <span class="text-xs font-bold text-slate-800 dark:text-slate-200">{{ customer.phone }}</span>
+                            <span class="text-[9px] text-slate-400 font-medium">{{ customer.email|default:"No email recorded" }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-star text-amber text-[10px]"></i>
+                            <span class="font-black text-xs">{{ customer.loyalty_points }} PTS</span>
+                        </div>
+                    </td>
+                    <td class="text-xs text-slate-400 font-medium">{{ customer.created_at|date:"M d, Y" }}</td>
+                    <td class="text-right">
+                        <div class="action-dropdown">
+                            <button class="action-btn-toggle"><i class="fas fa-ellipsis-h"></i></button>
+                            <div class="action-menu-content">
+                                <a href="{% url 'customer_edit' customer.id %}"><i class="fas fa-user-edit"></i> Modify Profile</a>
+                                <div class="menu-divider"></div>
+                                <a href="{% url 'customer_delete' customer.id %}" class="delete-action"><i class="fas fa-trash-alt"></i> Purge Record</a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="text-center py-20 text-slate-400 font-bold">Customer database is currently empty.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

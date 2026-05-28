@@ -1,0 +1,176 @@
+{% extends 'core/base.html' %}
+
+{% block page_title %}Enterprise Menu Catalog{% endblock %}
+
+{% block content %}
+<!-- Enterprise Header Controls -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+    <div class="flex flex-wrap items-center gap-3">
+        <a href="{% url 'menu_add' %}" class="inline-flex items-center px-6 py-3 bg-primary text-white text-xs font-bold rounded-xl shadow-lg shadow-primary/20 hover:scale-105 transition-transform">
+            <i class="fas fa-plus-circle mr-2"></i> NEW ITEM
+        </a>
+        <a href="{% url 'category_add' %}" class="inline-flex items-center px-6 py-3 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/5 text-slate-700 dark:text-slate-300 text-xs font-bold rounded-xl hover:bg-slate-50 transition-colors">
+            <i class="fas fa-folder-plus mr-2"></i> NEW CATEGORY
+        </a>
+    </div>
+    <div class="flex items-center space-x-4">
+        <div class="relative group">
+            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs transition-colors group-focus-within:text-primary"></i>
+            <input type="text" id="menuSearch" placeholder="Search dishes..." 
+                   class="w-full md:w-64 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/5 rounded-xl py-3 pl-10 pr-4 text-xs font-bold focus:ring-2 ring-primary/20 focus:border-primary transition-all">
+        </div>
+        
+        <!-- Category Dropdown -->
+        <div class="relative" x-data="{ open: false, selected: 'All Categories' }">
+            <button @click="open = !open" 
+                    class="flex items-center justify-between w-48 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/5 rounded-xl py-3 px-4 text-xs font-bold hover:border-primary transition-all">
+                <span x-text="selected"></span>
+                <i class="fas fa-chevron-down ml-2 text-[10px] transition-transform" :class="open ? 'rotate-180' : ''"></i>
+            </button>
+            <div x-show="open" @click.outside="open = false" x-cloak x-transition
+                 class="absolute right-0 top-full mt-2 w-full bg-white dark:bg-charcoal rounded-xl shadow-2xl border border-slate-200 dark:border-white/10 p-2 z-[100] max-h-64 overflow-y-auto">
+                <button @click="selected = 'All Categories'; open = false; filterCategory('all')" 
+                        class="w-full text-left px-4 py-2.5 rounded-lg text-xs font-bold hover:bg-primary/5 hover:text-primary transition-colors">All Categories</button>
+                {% for cat in categories %}
+                <button @click="selected = '{{ cat.name }}'; open = false; filterCategory('cat-{{ cat.id }}')" 
+                        class="w-full text-left px-4 py-2.5 rounded-lg text-xs font-bold hover:bg-primary/5 hover:text-primary transition-colors">{{ cat.name }}</button>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Category Strip (Optional but kept for quick access) -->
+<div class="flex items-center space-x-2 overflow-x-auto pb-6 scrollbar-hide">
+    <button onclick="filterCategory('all', this)" class="category-pill active">All Dishes</button>
+    {% for cat in categories %}
+        <button onclick="filterCategory('cat-{{ cat.id }}', this)" class="category-pill">{{ cat.name }}</button>
+    {% endfor %}
+</div>
+
+<!-- Immersive Menu Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6" id="menu-grid">
+    {% for item in menu_items %}
+    <div class="menu-item-card mix cat-{{ item.category.id }}" data-name="{{ item.name|lower }}">
+        <!-- Image Section -->
+        <div class="relative h-52 w-full overflow-hidden">
+            <div class="absolute top-4 right-4 z-10 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-xl text-[11px] font-black text-primary shadow-xl border border-white/20">
+                ${{ item.price|floatformat:2 }}
+            </div>
+            {% if item.image %}
+                <img src="{{ item.image.url }}" alt="{{ item.name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+            {% else %}
+                <div class="w-full h-full flex items-center justify-center bg-slate-100 dark:bg-dark/50 opacity-20">
+                    <i class="fas fa-utensils text-4xl"></i>
+                </div>
+            {% endif %}
+            <!-- Availability Overlay -->
+            {% if not item.is_available %}
+            <div class="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center">
+                <span class="bg-white/10 border border-white/20 px-4 py-2 rounded-full text-[10px] font-black text-white uppercase tracking-widest">Currently Unavailable</span>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Content Section -->
+        <div class="p-6 flex flex-col flex-1">
+            <div class="flex justify-between items-start mb-4">
+                <div class="min-w-0">
+                    <p class="text-[9px] font-black text-primary uppercase tracking-[2px] mb-1.5">{{ item.category.name }}</p>
+                    <h3 class="text-sm font-bold text-slate-900 dark:text-white truncate">{{ item.name }}</h3>
+                </div>
+                <div class="relative" x-data="{ open: false }">
+                    <button @click="open = !open" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-primary hover:bg-primary/5 transition-all">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <div x-show="open" @click.outside="open = false" x-cloak x-transition
+                         class="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-charcoal rounded-xl shadow-2xl border border-slate-200 dark:border-white/10 p-2 z-50">
+                        <a href="{% url 'menu_edit' item.id %}" class="flex items-center space-x-3 p-2.5 rounded-lg text-xs font-bold hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                            <i class="fas fa-edit w-4 text-slate-400"></i>
+                            <span>Edit Item</span>
+                        </a>
+                        <div class="h-px bg-slate-100 dark:bg-white/5 my-1"></div>
+                        <a href="{% url 'menu_delete' item.id %}" class="flex items-center space-x-3 p-2.5 rounded-lg text-xs font-bold text-rose hover:bg-rose/5 transition-colors">
+                            <i class="fas fa-trash-alt w-4"></i>
+                            <span>Delete Item</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed flex-1 italic">
+                {{ item.description|default:"Chef's special selection for our premium guests." }}
+            </p>
+            
+            <!-- Footer Section -->
+            <div class="mt-6 pt-4 border-t border-slate-100 dark:border-white/5 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    {% if item.is_available %}
+                        <div class="w-2 h-2 rounded-full bg-emerald"></div>
+                        <span class="text-[10px] font-bold text-emerald tracking-tight">AVAILABLE</span>
+                    {% else %}
+                        <div class="w-2 h-2 rounded-full bg-slate-400"></div>
+                        <span class="text-[10px] font-bold text-slate-400 tracking-tight">SOLD OUT</span>
+                    {% endif %}
+                </div>
+                <span class="text-[10px] font-black text-slate-300 dark:text-slate-600">ID #{{ item.id|stringformat:"03d" }}</span>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<style>
+    .menu-item-card {
+        @apply bg-white dark:bg-charcoal rounded-[40px] border-2 border-slate-100 dark:border-white/10 overflow-hidden flex flex-col h-full transition-all duration-500 hover:shadow-[0_30px_60px_-12px_rgba(0,0,0,0.12)] hover:-translate-y-3 hover:border-primary group relative;
+    }
+    .dark .menu-item-card {
+        @apply border-white/5;
+    }
+    .dark .menu-item-card:hover {
+        @apply shadow-[0_30px_60px_-12px_rgba(255,107,53,0.2)] border-primary/50;
+    }
+    .category-pill {
+        @apply whitespace-nowrap px-6 py-2.5 rounded-xl text-xs font-bold transition-all border border-slate-200 dark:border-white/5 bg-white dark:bg-white/5 text-slate-500 hover:border-primary hover:text-primary;
+    }
+    .category-pill.active {
+        @apply bg-primary text-white border-primary shadow-lg shadow-primary/20;
+    }
+</style>
+
+<script>
+    // Search Functionality
+    document.getElementById('menuSearch').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const cards = document.querySelectorAll('.menu-item-card');
+        
+        cards.forEach(card => {
+            const name = card.getAttribute('data-name');
+            if (name.includes(searchTerm)) {
+                card.style.display = 'flex';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+
+    // Category Filter
+    function filterCategory(catId, btn) {
+        // Toggle Active Class for pills if clicked
+        if (btn) {
+            document.querySelectorAll('.category-pill').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        const cards = document.querySelectorAll('.menu-item-card');
+        cards.forEach(card => {
+            if (catId === 'all' || card.classList.contains(catId)) {
+                card.style.display = 'flex';
+                card.classList.add('animate-fadeIn');
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+</script>
+{% endblock %}

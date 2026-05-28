@@ -1,0 +1,93 @@
+{% extends 'core/base.html' %}
+
+{% block page_title %}Operational Intelligence{% endblock %}
+
+{% block content %}
+<!-- Top Metrics -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <div class="kpi-card">
+        <div class="kpi-icon-box bg-emerald/10 text-emerald">
+            <i class="fas fa-chart-line"></i>
+        </div>
+        <div class="kpi-label">Revenue (30D)</div>
+        <div class="kpi-value text-slate-900 dark:text-white">${{ total_sales|floatformat:2 }}</div>
+        <div class="kpi-trend trend-up">
+            <i class="fas fa-arrow-up"></i> 8.2% <span class="text-slate-400 font-medium ml-1">vs prev. month</span>
+        </div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-icon-box bg-crimson/10 text-crimson">
+            <i class="fas fa-receipt"></i>
+        </div>
+        <div class="kpi-label">Expenditure (30D)</div>
+        <div class="kpi-value text-slate-900 dark:text-white">${{ total_expenses|floatformat:2 }}</div>
+        <div class="kpi-trend trend-down">
+            <i class="fas fa-arrow-down"></i> 1.5% <span class="text-slate-400 font-medium ml-1">efficiency gain</span>
+        </div>
+    </div>
+    <div class="kpi-card">
+        <div class="kpi-icon-box bg-primary/10 text-primary">
+            <i class="fas fa-wallet"></i>
+        </div>
+        <div class="kpi-label">Net Profit Margin</div>
+        <div class="kpi-value text-slate-900 dark:text-white">${{ net_profit|floatformat:2 }}</div>
+        <div class="kpi-trend trend-up">
+            <i class="fas fa-arrow-up"></i> 12% <span class="text-slate-400 font-medium ml-1">profit growth</span>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+    <!-- Daily Trends -->
+    <div class="card bg-white dark:bg-charcoal border border-slate-200 dark:border-white/5 rounded-[32px] p-8">
+        <div class="flex justify-between items-center mb-8">
+            <h3 class="text-xl font-black tracking-tight">Sales Velocity (7D)</h3>
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Real-time Data</span>
+        </div>
+        <div class="space-y-6">
+            {% for day in daily_sales_json %}
+            <div class="flex flex-col gap-2">
+                <div class="flex justify-between text-[10px] font-black uppercase tracking-tighter text-slate-500">
+                    <span>{{ day.date }}</span>
+                    <span class="text-slate-900 dark:text-white font-black">${{ day.amount }}</span>
+                </div>
+                <div class="h-3 w-full bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden">
+                    <div class="h-full bg-gradient-to-r from-primary to-amber" style="width: {% if day.amount > 0 %}max(5%, {{ day.amount }}%){% else %}0%{% endif %}"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Product Analytics -->
+    <div class="card bg-white dark:bg-charcoal border border-slate-200 dark:border-white/5 rounded-[32px] overflow-hidden">
+        <div class="p-8 border-b border-slate-100 dark:border-white/5">
+            <h3 class="text-xl font-black tracking-tight">Best-Selling Portfolio</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left premium-table">
+                <thead>
+                    <tr>
+                        <th>Dish Name</th>
+                        <th>Volume</th>
+                        <th class="text-right">Performance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in popular_items %}
+                    <tr class="hover:bg-slate-50 dark:hover:bg-white/5">
+                        <td class="font-bold text-xs">{{ item.name }}</td>
+                        <td class="text-xs font-black text-slate-500">{{ item.order_count }} Sold</td>
+                        <td class="text-right">
+                            <span class="px-2 py-1 bg-emerald/10 text-emerald rounded text-[9px] font-black">HIGH DEMAND</span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="3" class="text-center py-10 text-slate-400 font-bold">No sales data recorded.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

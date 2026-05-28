@@ -1,0 +1,75 @@
+{% extends 'core/base.html' %}
+
+{% block page_title %}Universal Transactional Ledger{% endblock %}
+
+{% block content %}
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+    <div class="flex items-center gap-3">
+        <div class="flex items-center space-x-2 bg-white dark:bg-white/5 border-2 border-slate-100 dark:border-white/10 p-1 rounded-2xl">
+            <button class="px-5 py-2 bg-primary text-white text-[10px] font-black rounded-xl shadow-lg shadow-primary/20">LIVE FEED</button>
+            <button class="px-5 py-2 text-slate-500 hover:text-slate-900 dark:hover:text-white text-[10px] font-black rounded-xl transition-all">PAID ARCHIVE</button>
+        </div>
+    </div>
+    <div class="flex items-center space-x-4">
+        <div class="relative group">
+            <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+            <input type="text" id="orderSearch" placeholder="Audit invoices..." class="input-pro pl-12 w-64">
+        </div>
+    </div>
+</div>
+
+<div class="card bg-white dark:bg-charcoal rounded-[40px] border-2 border-slate-100 dark:border-white/10 overflow-hidden shadow-sm">
+    <div class="overflow-x-auto">
+        <table class="premium-table">
+            <thead>
+                <tr>
+                    <th>Invoice ID</th>
+                    <th>Station Assignment</th>
+                    <th>Fulfillment</th>
+                    <th>Date & Time</th>
+                    <th>Settlement</th>
+                    <th class="text-right">Operation Intelligence</th>
+                </tr>
+            </thead>
+            <tbody id="orderTable">
+                {% for order in orders %}
+                <tr class="group">
+                    <td>
+                        <span class="text-xs font-black text-slate-900 dark:text-white tracking-tighter">#{{ order.invoice_number }}</span>
+                    </td>
+                    <td>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-9 h-9 rounded-xl bg-slate-50 dark:bg-white/5 flex items-center justify-center text-[10px] font-black text-slate-400 border border-slate-100 dark:border-white/5">T{{ order.table.number }}</div>
+                            <span class="text-xs font-bold text-slate-600">{{ order.staff.username|upper }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge-pro {% if order.status == 'paid' %}badge-pro-emerald{% elif order.status == 'pending' %}badge-pro-amber{% else %}badge-pro-primary{% endif %}">
+                            {{ order.get_status_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="flex flex-col">
+                            <span class="text-[11px] font-black text-slate-900 dark:text-white">{{ order.created_at|date:"d M Y" }}</span>
+                            <span class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">{{ order.created_at|date:"H:i A" }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="text-sm font-black text-slate-900 dark:text-white tracking-tighter">${{ order.total_price|floatformat:2 }}</span>
+                    </td>
+                    <td class="text-right">
+                        <div class="flex justify-end items-center gap-2">
+                            <a href="{% url 'order_detail' order.id %}" class="w-9 h-9 rounded-xl flex items-center justify-center text-slate-400 hover:bg-primary/10 hover:text-primary transition-all"><i class="fas fa-fingerprint text-xs"></i></a>
+                            <a href="{% url 'order_print' order.id %}" target="_blank" class="w-9 h-9 rounded-xl flex items-center justify-center text-slate-400 hover:bg-emerald/10 hover:text-emerald transition-all"><i class="fas fa-print text-xs"></i></a>
+                            <a href="{% url 'order_delete' order.id %}" class="w-9 h-9 rounded-xl flex items-center justify-center text-slate-400 hover:bg-rose/10 hover:text-rose transition-all"><i class="fas fa-trash-alt text-xs"></i></a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="text-center py-24 text-slate-400 font-bold uppercase tracking-widest text-[10px]">No transaction history recorded</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends 'core/base.html' %}
+
+{% block page_title %}Table Reservations & Bookings{% endblock %}
+
+{% block content %}
+<div class="mb-8 flex justify-between items-center">
+    <div class="flex gap-4">
+        <a href="{% url 'reservation_add' %}" class="btn bg-primary text-white shadow-lg shadow-primary/30">
+            <i class="fas fa-calendar-plus"></i> <span>Secure Reservation</span>
+        </a>
+        <a href="{% url 'customer_list' %}" class="btn bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-white">
+            <i class="fas fa-users text-slate-400"></i> <span>CRM Database</span>
+        </a>
+    </div>
+</div>
+
+<div class="card bg-white dark:bg-charcoal border border-slate-200 dark:border-white/5 rounded-[24px] overflow-hidden">
+    <div class="p-6 border-b border-slate-100 dark:border-white/5">
+        <h3 class="text-lg font-bold">Upcoming Schedule</h3>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-left premium-table">
+            <thead>
+                <tr>
+                    <th>Customer Contact</th>
+                    <th>Dining Area</th>
+                    <th>Schedule</th>
+                    <th>Party Size</th>
+                    <th>Status</th>
+                    <th class="text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for res in reservations %}
+                <tr class="hover:bg-slate-50 dark:hover:bg-white/5">
+                    <td>
+                        <div class="flex flex-col">
+                            <span class="font-bold text-slate-900 dark:text-white text-xs">{{ res.customer.name }}</span>
+                            <span class="text-[10px] text-slate-400 font-bold tracking-tighter">{{ res.customer.phone }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="px-2 py-1 bg-slate-100 dark:bg-white/5 rounded-lg text-[10px] font-black uppercase">Table {{ res.table.number }}</span>
+                    </td>
+                    <td>
+                        <div class="flex flex-col">
+                            <span class="text-xs font-bold">{{ res.date|date:"M j, Y" }}</span>
+                            <span class="text-[10px] text-primary font-black uppercase">{{ res.time|time:"H:i" }}</span>
+                        </div>
+                    </td>
+                    <td class="font-black text-xs">{{ res.guest_count }} PAX</td>
+                    <td>
+                        <span class="px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider
+                            {% if res.status == 'confirmed' %}bg-emerald/10 text-emerald border border-emerald/20
+                            {% elif res.status == 'cancelled' %}bg-crimson/10 text-crimson border border-crimson/20
+                            {% else %}bg-amber/10 text-amber border border-amber/20{% endif %}">
+                            {{ res.get_status_display }}
+                        </span>
+                    </td>
+                    <td class="text-right">
+                        <div class="action-dropdown">
+                            <button class="action-btn-toggle"><i class="fas fa-ellipsis-h"></i></button>
+                            <div class="action-menu-content">
+                                <a href="{% url 'reservation_edit' res.id %}"><i class="fas fa-edit"></i> Modify Booking</a>
+                                <div class="menu-divider"></div>
+                                <a href="{% url 'reservation_delete' res.id %}" class="delete-action"><i class="fas fa-trash-alt"></i> Cancel/Delete</a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="text-center py-20 text-slate-400 font-bold">No active reservations.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
