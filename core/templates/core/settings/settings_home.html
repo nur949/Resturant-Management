@@ -1,168 +1,86 @@
 {% extends 'core/base.html' %}
 
-{% block page_title %}System Configuration & Management{% endblock %}
+{% block page_title %}SYSTEM_CONFIG{% endblock %}
 
 {% block content %}
-<div class="card">
-    <div class="card-body">
-        <!-- Enterprise Tabs -->
-        <div class="tabs-container">
-            <div class="tabs-header d-flex gap-10 mb-2" style="border-bottom: 2px solid #f1f5f9;">
-                <button class="tab-btn active" onclick="showTab('general')">General Settings</button>
-                <button class="tab-btn" onclick="showTab('users')">Staff Management</button>
-                <button class="tab-btn" onclick="showTab('finance')">Financial Config</button>
+<div class="space-y-8">
+    <!-- Restaurant Identity -->
+    <div class="border border-black">
+        <div class="p-3 bg-black text-white flex justify-between items-center">
+            <span class="text-xs font-bold uppercase">RESTAURANT_IDENTITY</span>
+            <a href="{% url 'settings_update' %}" class="text-[10px] font-bold underline text-white">[EDIT]</a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 border-t border-black">
+            <div class="p-4 border-r border-b border-black md:border-b-0">
+                <div class="text-[9px] font-bold text-gray-500">NAME</div>
+                <div class="text-sm font-bold">{{ settings.name }}</div>
             </div>
-
-            <!-- General Tab -->
-            <div id="general" class="tab-content show">
-                <div class="d-flex justify-between align-center mb-2">
-                    <h3 style="font-size: 16px; font-weight: 700;">Restaurant Identity</h3>
-                    <a href="{% url 'settings_update' %}" class="btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit Identity</a>
-                </div>
-                <div class="settings-grid">
-                    <div class="settings-item">
-                        <label>Restaurant Name</label>
-                        <p class="bold">{{ settings.name }}</p>
-                    </div>
-                    <div class="settings-item">
-                        <label>Tagline</label>
-                        <p>{{ settings.tagline }}</p>
-                    </div>
-                    <div class="settings-item">
-                        <label>TRN Number</label>
-                        <p class="bold">{{ settings.trn_number|default:"Not Set" }}</p>
-                    </div>
-                    <div class="settings-item">
-                        <label>Contact Phone</label>
-                        <p>{{ settings.phone|default:"Not Set" }}</p>
-                    </div>
-                    <div class="settings-item">
-                        <label>Email Address</label>
-                        <p>{{ settings.email|default:"Not Set" }}</p>
-                    </div>
-                    <div class="settings-item" style="grid-column: span 2;">
-                        <label>Physical Address</label>
-                        <p>{{ settings.address|default:"Not Set" }}</p>
-                    </div>
-                </div>
+            <div class="p-4 border-r border-b border-black md:border-b-0">
+                <div class="text-[9px] font-bold text-gray-500">TAGLINE</div>
+                <div class="text-sm">{{ settings.tagline }}</div>
             </div>
-
-            <!-- Users Tab -->
-            <div id="users" class="tab-content">
-                <div class="d-flex justify-between align-center mb-2">
-                    <h3 style="font-size: 16px; font-weight: 700;">Authorized Staff Members</h3>
-                    <a href="{% url 'user_add' %}" class="btn btn-primary btn-sm"><i class="fas fa-user-plus"></i> Add New Staff</a>
-                </div>
-                <div class="data-table-container">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Full Name</th>
-                                <th>Username</th>
-                                <th>Role</th>
-                                <th>Status</th>
-                                <th class="text-right">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for u in users %}
-                            <tr>
-                                <td>{{ u.get_full_name|default:u.username }}</td>
-                                <td class="bold">{{ u.username }}</td>
-                                <td>
-                                    {% if u.is_superuser %}
-                                        <span class="badge" style="background: #e0e7ff; color: #4338ca;">ADMINISTRATOR</span>
-                                    {% else %}
-                                        <span class="badge" style="background: #f1f5f9; color: #475569;">STAFF</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if u.is_active %}
-                                        <span class="badge badge-available">ACTIVE</span>
-                                    {% else %}
-                                        <span class="badge badge-occupied">INACTIVE</span>
-                                    {% endif %}
-                                </td>
-                                <td class="text-right">
-                                    <div class="action-dropdown">
-                                        <button class="action-btn-toggle" style="padding: 2px 6px;"><i class="fas fa-ellipsis-v"></i></button>
-                                        <div class="action-menu-content">
-                                            <a href="{% url 'user_edit' u.id %}"><i class="fas fa-user-edit"></i> Edit Account</a>
-                                            <a href="{% url 'user_delete' u.id %}" class="delete-action"><i class="fas fa-user-minus"></i> Remove Staff</a>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+            <div class="p-4 border-b border-black md:border-b-0 lg:border-r">
+                <div class="text-[9px] font-bold text-gray-500">TRN_NUMBER</div>
+                <div class="text-sm font-bold">{{ settings.trn_number|default:"N/A" }}</div>
             </div>
+        </div>
+    </div>
 
-            <!-- Finance Tab -->
-            <div id="finance" class="tab-content">
-                <div class="d-flex justify-between align-center mb-2">
-                    <h3 style="font-size: 16px; font-weight: 700;">Financial & Tax Configuration</h3>
-                    <a href="{% url 'settings_update' %}" class="btn btn-primary btn-sm"><i class="fas fa-edit"></i> Update Rates</a>
-                </div>
-                <div class="settings-grid">
-                    <div class="settings-item">
-                        <label>Currency Symbol</label>
-                        <p class="bold" style="font-size: 18px;">{{ settings.currency_symbol }}</p>
-                    </div>
-                    <div class="settings-item">
-                        <label>Standard Tax Rate (VAT)</label>
-                        <p class="bold" style="font-size: 18px;">{{ settings.default_tax_rate }}%</p>
-                    </div>
-                </div>
+    <!-- Staff Management -->
+    <div class="border border-black">
+        <div class="p-3 bg-black text-white flex justify-between items-center">
+            <span class="text-xs font-bold uppercase">STAFF_MANAGEMENT</span>
+            <a href="{% url 'user_add' %}" class="text-[10px] font-bold underline text-white">[+ADD_NEW_STAFF]</a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-[10px] border-collapse">
+                <thead>
+                    <tr class="bg-gray-50 border-b border-black">
+                        <th class="p-2 font-bold border-r border-black uppercase">FULL_NAME</th>
+                        <th class="p-2 font-bold border-r border-black uppercase">USERNAME</th>
+                        <th class="p-2 font-bold border-r border-black uppercase">ROLE</th>
+                        <th class="p-2 font-bold border-r border-black uppercase">STATUS</th>
+                        <th class="p-2 font-bold uppercase">ACTION</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-black">
+                    {% for u in users %}
+                    <tr>
+                        <td class="p-2 border-r border-black">{{ u.get_full_name|default:u.username }}</td>
+                        <td class="p-2 border-r border-black font-bold uppercase">{{ u.username }}</td>
+                        <td class="p-2 border-r border-black">
+                            <span class="px-1 border border-black uppercase">{% if u.is_superuser %}ADMIN{% else %}STAFF{% endif %}</span>
+                        </td>
+                        <td class="p-2 border-r border-black">
+                            <span class="{% if u.is_active %}text-black{% else %}text-gray-400{% endif %} font-bold">{% if u.is_active %}ACTIVE{% else %}INACTIVE{% endif %}</span>
+                        </td>
+                        <td class="p-2 space-x-2">
+                            <a href="{% url 'user_edit' u.id %}" class="underline font-bold">[EDIT]</a>
+                            <a href="{% url 'user_delete' u.id %}" class="underline font-bold text-red-600">[DEL]</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Financial Config -->
+    <div class="border border-black">
+        <div class="p-3 bg-black text-white flex justify-between items-center">
+            <span class="text-xs font-bold uppercase">FINANCIAL_CONFIG</span>
+            <a href="{% url 'settings_update' %}" class="text-[10px] font-bold underline text-white">[EDIT]</a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-0 border-t border-black">
+            <div class="p-4 border-r border-black">
+                <div class="text-[9px] font-bold text-gray-500">CURRENCY_SYMBOL</div>
+                <div class="text-xl font-bold">{{ settings.currency_symbol }}</div>
+            </div>
+            <div class="p-4">
+                <div class="text-[9px] font-bold text-gray-500">TAX_RATE_(VAT)</div>
+                <div class="text-xl font-bold">{{ settings.default_tax_rate }}%</div>
             </div>
         </div>
     </div>
 </div>
-
-<style>
-    .tab-btn {
-        background: none;
-        border: none;
-        padding: 12px 20px;
-        font-weight: 600;
-        color: var(--text-muted);
-        cursor: pointer;
-        transition: 0.2s;
-        border-bottom: 2px solid transparent;
-        margin-bottom: -2px;
-    }
-    .tab-btn:hover { color: var(--primary); }
-    .tab-btn.active {
-        color: var(--primary);
-        border-bottom-color: var(--primary);
-    }
-    .tab-content { display: none; padding-top: 20px; }
-    .tab-content.show { display: block; animation: fadeIn 0.3s; }
-    
-    .settings-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 24px;
-    }
-    .settings-item label {
-        display: block;
-        font-size: 10px;
-        text-transform: uppercase;
-        color: var(--text-muted);
-        font-weight: 700;
-        margin-bottom: 4px;
-    }
-    .settings-item p { font-size: 13px; color: var(--text-main); }
-</style>
-
-<script>
-    function showTab(id) {
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('show'));
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        
-        document.getElementById(id).classList.add('show');
-        event.currentTarget.classList.add('active');
-    }
-</script>
 {% endblock %}

@@ -66,9 +66,9 @@
                     </button>
                     <span class="text-xs font-bold uppercase tracking-tight">/ {% block page_title %}INDEX{% endblock %}</span>
                 </div>
-                <div class="text-[10px] font-mono bg-black text-white px-2 py-0.5">
+                <a href="{% url 'personal_profile' %}" class="text-[10px] bg-black text-white px-2 py-0.5 hover:bg-gray-800 transition-colors">
                     USER: {{ user.username|upper }}
-                </div>
+                </a>
             </header>
 
             <main class="p-4 flex-1">
