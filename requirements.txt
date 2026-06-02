@@ -14,3 +14,5 @@ drf-yasg
 dj-database-url
 django-csp
 django-axes
+cloudinary
+django-cloudinary-storage
