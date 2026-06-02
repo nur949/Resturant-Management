@@ -41,7 +41,7 @@
                     </div>
                     <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">Total Asset Value</span>
                 </div>
-                <h3 class="fw-bold mb-0 text-gray-800">${{ total_inventory_value|floatformat:2 }}</h3>
+                <h3 class="fw-bold mb-0 text-gray-800">Tk{{ total_inventory_value|floatformat:2 }}</h3>
             </div>
         </div>
     </div>
@@ -92,10 +92,10 @@
                         <span class="text-sm font-bold text-gray-700">{{ item.current_stock }} {{ item.get_unit_display|upper }}</span>
                     </td>
                     <td>
-                        <span class="text-sm text-gray-600">${{ item.cost_per_unit }}</span>
+                        <span class="text-sm text-gray-600">Tk{{ item.cost_per_unit }}</span>
                     </td>
                     <td>
-                        <span class="text-sm font-black text-gray-800">${{ item.current_stock|multiply:item.cost_per_unit|floatformat:2 }}</span>
+                        <span class="text-sm font-black text-gray-800">Tk{{ item.current_stock|multiply:item.cost_per_unit|floatformat:2 }}</span>
                     </td>
                     <td class="pe-4 text-end">
                         <div class="d-flex justify-content-end gap-1">

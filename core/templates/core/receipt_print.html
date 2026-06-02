@@ -72,7 +72,7 @@
             <tr>
                 <td>{{ item.menu_item.name|upper }}</td>
                 <td class="text-center">{{ item.quantity }}</td>
-                <td class="text-right">${{ item.get_total_item_price }}</td>
+                <td class="text-right">Tk{{ item.get_total_item_price }}</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -84,15 +84,15 @@
         <table>
             <tr>
                 <td>SUBTOTAL</td>
-                <td class="text-right">${{ order.subtotal }}</td>
+                <td class="text-right">Tk{{ order.subtotal }}</td>
             </tr>
             <tr>
                 <td>TAX ({{ order.tax_rate }}%)</td>
-                <td class="text-right">${{ order.tax_amount }}</td>
+                <td class="text-right">Tk{{ order.tax_amount }}</td>
             </tr>
             <tr style="font-size: 16px;">
                 <td class="bold">NET TOTAL</td>
-                <td class="text-right bold">${{ order.total_price }}</td>
+                <td class="text-right bold">Tk{{ order.total_price }}</td>
             </tr>
         </table>
     </div>

@@ -104,7 +104,7 @@
                     {% if table.status == 'occupied' %}
                         {% with latest_order=table.orders.last %}
                             {% if latest_order and latest_order.status != 'paid' %}
-                            <h4 class="fw-bold text-gray-800">${{ latest_order.total_price|floatformat:2 }}</h4>
+                            <h4 class="fw-bold text-gray-800">Tk{{ latest_order.total_price|floatformat:2 }}</h4>
                             <span class="text-xs text-gray-400">Current Tab</span>
                             {% endif %}
                         {% endwith %}
