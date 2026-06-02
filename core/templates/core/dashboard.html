@@ -15,7 +15,7 @@
                     <span class="text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded">+12%</span>
                 </div>
                 <p class="text-sm font-medium text-gray-500 mb-1">Revenue Today</p>
-                <h4 class="fw-bold mb-0 text-gray-800">Tk{{ today_sales|floatformat:2 }}</h4>
+                <h4 class="fw-bold mb-0 text-gray-800">Tk {{ today_sales|floatformat:2 }}</h4>
             </div>
         </div>
     </div>
@@ -29,7 +29,7 @@
                     <span class="text-xs font-medium text-red-600 bg-red-50 px-2 py-1 rounded">-2%</span>
                 </div>
                 <p class="text-sm font-medium text-gray-500 mb-1">Expenses Today</p>
-                <h4 class="fw-bold mb-0 text-gray-800">Tk{{ today_expenses|floatformat:2 }}</h4>
+                <h4 class="fw-bold mb-0 text-gray-800">Tk {{ today_expenses|floatformat:2 }}</h4>
             </div>
         </div>
     </div>
@@ -169,7 +169,7 @@
                         <span class="bg-gray-100 text-gray-700 text-xs font-medium px-2 py-1 rounded-full">{{ order.get_status_display }}</span>
                         {% endif %}
                     </td>
-                    <td class="text-end font-medium text-gray-800">Tk{{ order.total_price|floatformat:2 }}</td>
+                    <td class="text-end font-medium text-gray-800">Tk {{ order.total_price|floatformat:2 }}</td>
                     <td class="pe-4 text-end">
                         <button class="btn btn-sm btn-light rounded-full p-2" type="button" data-bs-toggle="dropdown">
                             <span class="material-symbols-outlined text-gray-500" style="font-size: 20px;">more_vert</span>
@@ -234,7 +234,7 @@
         },
         yaxis: { 
             labels: { 
-                formatter: function (v) { return "Tk" + v },
+                formatter: function (v) { return "Tk " + v },
                 style: { colors: '#94a3b8', fontSize: '12px' }
             }
         },

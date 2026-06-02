@@ -14,7 +14,7 @@
                     </div>
                     <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">Revenue (30D)</span>
                 </div>
-                <h3 class="fw-bold mb-2 text-gray-800">Tk{{ total_sales|floatformat:2 }}</h3>
+                <h3 class="fw-bold mb-2 text-gray-800">Tk {{ total_sales|floatformat:2 }}</h3>
                 <div class="d-flex align-items-center text-xs font-medium text-green-600">
                     <span class="material-symbols-outlined text-sm me-1">arrow_upward</span>
                     <span>8.2% <span class="text-gray-400 ms-1">vs prev. month</span></span>
@@ -31,7 +31,7 @@
                     </div>
                     <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">Expenditure (30D)</span>
                 </div>
-                <h3 class="fw-bold mb-2 text-gray-800">Tk{{ total_expenses|floatformat:2 }}</h3>
+                <h3 class="fw-bold mb-2 text-gray-800">Tk {{ total_expenses|floatformat:2 }}</h3>
                 <div class="d-flex align-items-center text-xs font-medium text-red-600">
                     <span class="material-symbols-outlined text-sm me-1">arrow_downward</span>
                     <span>1.5% <span class="text-gray-400 ms-1">efficiency gain</span></span>
@@ -48,7 +48,7 @@
                     </div>
                     <span class="text-xs font-medium text-gray-500 uppercase tracking-wider">Net Profit Margin</span>
                 </div>
-                <h3 class="fw-bold mb-2 text-gray-800">Tk{{ net_profit|floatformat:2 }}</h3>
+                <h3 class="fw-bold mb-2 text-gray-800">Tk {{ net_profit|floatformat:2 }}</h3>
                 <div class="d-flex align-items-center text-xs font-medium text-green-600">
                     <span class="material-symbols-outlined text-sm me-1">arrow_upward</span>
                     <span>12% <span class="text-gray-400 ms-1">profit growth</span></span>
@@ -72,7 +72,7 @@
                     <div class="d-flex flex-column gap-2">
                         <div class="d-flex justify-content-between text-xs font-bold text-gray-500 uppercase tracking-wider">
                             <span>{{ day.date }}</span>
-                            <span class="text-gray-800">Tk{{ day.amount }}</span>
+                            <span class="text-gray-800">Tk {{ day.amount }}</span>
                         </div>
                         <div class="progress rounded-pill" style="height: 8px;">
                             <div class="progress-bar bg-primary" role="progressbar" 

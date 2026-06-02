@@ -44,7 +44,7 @@
                         </span>
                     </td>
                     <td>
-                        <span class="text-sm font-bold text-red-600">-Tk{{ expense.amount|floatformat:2 }}</span>
+                        <span class="text-sm font-bold text-red-600">-Tk {{ expense.amount|floatformat:2 }}</span>
                     </td>
                     <td>
                         <span class="text-xs text-gray-500 italic">{{ expense.description|default:"Standard operational cost"|truncatechars:45 }}</span>
