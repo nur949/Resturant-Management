@@ -60,15 +60,15 @@ INSTALLED_APPS = [
 
 # Cloudinary Storage Configuration
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME'),
-    'API_KEY': config('CLOUDINARY_API_KEY'),
-    'API_SECRET': config('CLOUDINARY_API_SECRET'),
+    'CLOUD_NAME': 'retopro',
+    'API_KEY': '843314125975649',
+    'API_SECRET': '8hLPRDUFVTRLejg7SsxgIsnBTDY',
 }
 
 cloudinary.config(
-    cloud_name=CLOUDINARY_STORAGE['CLOUD_NAME'],
-    api_key=CLOUDINARY_STORAGE['API_KEY'],
-    api_secret=CLOUDINARY_STORAGE['API_SECRET'],
+    cloud_name='retopro',
+    api_key='843314125975649',
+    api_secret='8hLPRDUFVTRLejg7SsxgIsnBTDY',
     secure=True
 )
 
