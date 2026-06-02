@@ -22,7 +22,7 @@
     <div class="app-card overflow-hidden menu-item-card" data-name="{{ item.name|lower }}">
         <div class="aspect-video bg-gray-100 border-b border-gray-100 relative">
             {% if item.image %}
-                <img src="{{ item.image.url }}" alt="{{ item.name }}" class="w-full h-full object-cover">
+                <img src="{{ item.image.url }}" alt="{{ item.name }}" class="w-full h-full object-cover" loading="lazy">
             {% else %}
                 <div class="w-full h-full flex items-center justify-center text-gray-300">
                     <span class="material-icons text-4xl">image_not_supported</span>

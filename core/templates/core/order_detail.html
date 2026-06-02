@@ -49,7 +49,7 @@
                      class="border border-gray-200 rounded p-2 cursor-pointer hover:border-blue-600 hover:bg-blue-50 transition-colors flex flex-col">
                     <div class="aspect-square bg-gray-100 rounded mb-2 overflow-hidden">
                         {% if item.image %}
-                            <img src="{{ item.image.url }}" class="w-full h-full object-cover">
+                            <img src="{{ item.image.url }}" class="w-full h-full object-cover" loading="lazy">
                         {% else %}
                             <div class="w-full h-full flex items-center justify-center text-gray-200">
                                 <span class="material-icons text-2xl">restaurant</span>
