@@ -1,4 +1,5 @@
 {% extends 'core/base.html' %}
+{% load inventory_extras %}
 
 {% block page_title %}Operational Intelligence{% endblock %}
 
@@ -79,7 +80,7 @@
                 </div>
                 <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden shadow-inner">
                     <div class="h-full bg-gradient-to-r from-teal-600 to-emerald-400 group-hover:from-orange-500 group-hover:to-rose-400 transition-all duration-700 rounded-full" 
-                         style="width: {% if day.amount > 0 %}max(2%, {{ day.amount|divisibleby:100 }}%){% else %}0%{% endif %}"></div>
+                         style="width: {% if day.amount > 0 %}max(2%, 70%){% else %}0%{% endif %}"></div>
                 </div>
             </div>
             {% endfor %}

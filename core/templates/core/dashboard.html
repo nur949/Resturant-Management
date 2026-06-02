@@ -1,4 +1,5 @@
 {% extends 'core/base.html' %}
+{% load inventory_extras %}
 
 {% block page_title %}Executive Dashboard{% endblock %}
 
@@ -71,7 +72,7 @@
                 <p class="text-small-caps mb-1 text-slate-400">Table Occupancy</p>
                 <h3 class="text-2xl font-extrabold text-white">{{ occupied_tables }}<span class="text-slate-500 font-normal text-lg">/{{ total_tables }}</span></h3>
                 <div class="mt-2 w-24 h-1.5 bg-slate-700 rounded-full overflow-hidden">
-                    <div class="bg-teal-500 h-full" style="width: {% if total_tables > 0 %}{{ occupied_tables|add:0|divisibleby:total_tables|multiply:100 }}{% else %}0{% endif %}%"></div>
+                    <div class="bg-teal-500 h-full" style="width: {% if total_tables > 0 %}{{ occupied_tables|divide:total_tables|multiply:100 }}{% else %}0{% endif %}%"></div>
                 </div>
             </div>
             <div class="w-12 h-12 bg-white/10 text-white rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
