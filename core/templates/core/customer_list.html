@@ -1,0 +1,77 @@
+{% extends 'core/base.html' %}
+
+{% block page_title %}Customer Relationship Management{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-6">
+    <h5 class="mb-0 fw-bold text-gray-800">Loyalty & Profiles</h5>
+    <a href="{% url 'customer_add' %}" class="btn btn-mui-primary flex items-center">
+        <span class="material-symbols-outlined me-2">person_add</span> Onboard New Customer
+    </a>
+</div>
+
+<div class="card elevation-1 border-0">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="ps-4 py-3 border-0 text-xs font-medium text-gray-500 uppercase">Customer Identity</th>
+                    <th class="py-3 border-0 text-xs font-medium text-gray-500 uppercase">Communication</th>
+                    <th class="py-3 border-0 text-xs font-medium text-gray-500 uppercase">Loyalty Points</th>
+                    <th class="py-3 border-0 text-xs font-medium text-gray-500 uppercase text-center">Join Date</th>
+                    <th class="pe-4 py-3 border-0 text-xs font-medium text-gray-500 uppercase text-end">Operations</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for customer in customers %}
+                <tr>
+                    <td class="ps-4">
+                        <div class="d-flex align-items-center">
+                            <div class="w-10 h-10 rounded-full bg-primary bg-opacity-10 text-primary flex items-center justify-center font-bold text-sm me-3">
+                                {{ customer.name|first|upper }}
+                            </div>
+                            <span class="font-medium text-gray-800">{{ customer.name }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="d-flex flex-column">
+                            <span class="text-sm font-medium text-gray-700">{{ customer.phone }}</span>
+                            <span class="text-xs text-gray-400">{{ customer.email|default:"No email recorded" }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="material-symbols-outlined text-amber-500" style="font-size: 18px;">stars</span>
+                            <span class="text-sm font-bold text-gray-700">{{ customer.loyalty_points }} PTS</span>
+                        </div>
+                    </td>
+                    <td class="text-center">
+                        <span class="text-sm text-gray-500">{{ customer.created_at|date:"M d, Y" }}</span>
+                    </td>
+                    <td class="pe-4 text-end">
+                        <div class="d-flex justify-content-end gap-1">
+                            <a href="{% url 'customer_edit' customer.id %}" class="btn btn-sm btn-light rounded-full p-2 text-gray-600 hover:text-primary" title="Edit Profile">
+                                <span class="material-symbols-outlined" style="font-size: 20px;">edit</span>
+                            </a>
+                            <a href="{% url 'customer_delete' customer.id %}" class="btn btn-sm btn-light rounded-full p-2 text-gray-600 hover:text-danger" title="Purge Record">
+                                <span class="material-symbols-outlined" style="font-size: 20px;">delete</span>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center py-5">
+                        <div class="p-5">
+                            <span class="material-symbols-outlined text-gray-200" style="font-size: 64px;">person_search</span>
+                            <p class="text-gray-400 mt-3 fw-medium">Customer database is currently empty.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+

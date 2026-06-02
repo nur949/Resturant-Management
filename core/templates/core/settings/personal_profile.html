@@ -1,0 +1,198 @@
+{% extends 'core/base.html' %}
+
+{% block page_title %}My Personal Settings{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 col-xl-10">
+        <div class="card elevation-1 border-0 overflow-hidden">
+            <!-- Profile Header -->
+            <div class="card-body p-4 p-md-5 bg-primary bg-opacity-5 border-bottom">
+                <div class="d-flex flex-column flex-md-row align-items-center gap-4">
+                    <div class="position-relative">
+                        {% if user.profile.avatar %}
+                            <img src="{{ user.profile.avatar.url }}" alt="Avatar" class="rounded-circle border border-white border-4 elevation-2" style="width: 120px; height: 120px; object-fit: cover;">
+                        {% else %}
+                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-center font-bold elevation-2" style="width: 120px; height: 120px; font-size: 48px;">
+                                {{ user.username|first|upper }}
+                            </div>
+                        {% endif %}
+                        <button class="btn btn-sm btn-white rounded-circle position-absolute bottom-0 end-0 p-2 elevation-2 border shadow-sm">
+                            <span class="material-symbols-outlined text-primary" style="font-size: 20px;">photo_camera</span>
+                        </button>
+                    </div>
+                    <div class="text-center text-md-start flex-grow-1">
+                        <h3 class="fw-bold text-gray-800 mb-1">{{ user.get_full_name|default:user.username }}</h3>
+                        <p class="text-gray-500 mb-3">{{ user.email|default:"No email associated" }}</p>
+                        <div class="d-flex flex-wrap justify-content-center justify-content-md-start gap-2">
+                            <span class="badge bg-primary bg-opacity-10 text-primary border-0 px-3 py-2 rounded-pill font-medium">
+                                <span class="material-symbols-outlined align-middle me-1" style="font-size: 16px;">admin_panel_settings</span>
+                                {% if user.is_superuser %}ADMINISTRATOR{% else %}STAFF MEMBER{% endif %}
+                            </span>
+                            <span class="badge bg-green-50 text-green-600 border-0 px-3 py-2 rounded-pill font-medium">
+                                <span class="material-symbols-outlined align-middle me-1" style="font-size: 16px;">verified</span>
+                                ACTIVE
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <!-- MUI Tabs -->
+                <div class="d-flex border-bottom overflow-auto">
+                    <button class="tab-btn px-4 py-3 fw-medium border-0 bg-transparent active" onclick="showTab(event, 'personal_info')">
+                        <span class="d-flex align-items-center gap-2">
+                            <span class="material-symbols-outlined" style="font-size: 20px;">person</span>
+                            Personal Information
+                        </span>
+                    </button>
+                    <button class="tab-btn px-4 py-3 fw-medium border-0 bg-transparent" onclick="showTab(event, 'security')">
+                        <span class="d-flex align-items-center gap-2">
+                            <span class="material-symbols-outlined" style="font-size: 20px;">security</span>
+                            Security & Password
+                        </span>
+                    </button>
+                </div>
+
+                <div class="p-4 p-md-5">
+                    <!-- Personal Info Tab -->
+                    <div id="personal_info" class="tab-content show">
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="update_account">
+                            
+                            <div class="row g-4">
+                                <div class="col-12">
+                                    <h6 class="fw-bold text-gray-800 mb-0 d-flex align-items-center">
+                                        <span class="material-symbols-outlined me-2 text-primary">badge</span> Basic Information
+                                    </h6>
+                                    <hr class="mt-2 mb-0 opacity-10">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-xs fw-bold text-gray-500 uppercase tracking-widest">First Name</label>
+                                    {{ account_form.first_name }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-xs fw-bold text-gray-500 uppercase tracking-widest">Last Name</label>
+                                    {{ account_form.last_name }}
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label text-xs fw-bold text-gray-500 uppercase tracking-widest">Email Address</label>
+                                    {{ account_form.email }}
+                                </div>
+
+                                <div class="col-12 mt-5">
+                                    <h6 class="fw-bold text-gray-800 mb-0 d-flex align-items-center">
+                                        <span class="material-symbols-outlined me-2 text-primary">contact_phone</span> Profile Details
+                                    </h6>
+                                    <hr class="mt-2 mb-0 opacity-10">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label text-xs fw-bold text-gray-500 uppercase tracking-widest">Profile Picture</label>
+                                    {{ profile_form.avatar }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-xs fw-bold text-gray-500 uppercase tracking-widest">Phone Number</label>
+                                    {{ profile_form.phone }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-xs fw-bold text-gray-500 uppercase tracking-widest">Address</label>
+                                    {{ profile_form.address }}
+                                </div>
+                                <div class="col-12 mt-4">
+                                    <button type="submit" class="btn btn-mui-primary px-4">
+                                        <span class="material-symbols-outlined me-2">save</span> Save Changes
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Security Tab -->
+                    <div id="security" class="tab-content">
+                        <div class="row justify-content-center">
+                            <div class="col-12 col-md-6">
+                                <h6 class="fw-bold text-gray-800 mb-4 d-flex align-items-center">
+                                    <span class="material-symbols-outlined me-2 text-primary">lock_reset</span> Change Account Password
+                                </h6>
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="change_password">
+                                    
+                                    {% for field in password_form %}
+                                        <div class="mb-3">
+                                            <label class="form-label text-xs fw-bold text-gray-500 uppercase tracking-widest">{{ field.label }}</label>
+                                            {{ field }}
+                                            {% if field.errors %}
+                                                <div class="text-danger xsmall mt-1">{{ field.errors }}</div>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                    
+                                    <div class="mt-4">
+                                        <button type="submit" class="btn btn-dark rounded-pill px-4 flex items-center">
+                                            <span class="material-symbols-outlined me-2">key</span> Update Password
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .tab-btn {
+        position: relative;
+        color: #64748b;
+        transition: all 0.2s;
+        border-bottom: 2px solid transparent !important;
+    }
+    .tab-btn:hover {
+        color: #1976d2;
+        background: rgba(25, 118, 210, 0.04) !important;
+    }
+    .tab-btn.active {
+        color: #1976d2;
+        border-bottom-color: #1976d2 !important;
+    }
+    .tab-content { display: none; }
+    .tab-content.show { display: block; animation: fadeIn 0.3s ease-out; }
+    
+    input[type="text"], input[type="email"], input[type="tel"], textarea, select {
+        display: block;
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #475569;
+        background-color: #f8fafc;
+        background-clip: padding-box;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.5rem;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+    input:focus {
+        background-color: #fff;
+        border-color: #3b82f6;
+        outline: 0;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    }
+</style>
+
+<script>
+    function showTab(event, id) {
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('show'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        
+        document.getElementById(id).classList.add('show');
+        event.currentTarget.classList.add('active');
+    }
+</script>
+{% endblock %}
+

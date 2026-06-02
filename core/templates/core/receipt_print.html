@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Receipt #{{ order.id }}</title>
+    <style>
+        @page {
+            size: 80mm auto;
+            margin: 0;
+        }
+        body {
+            width: 80mm;
+            margin: 0;
+            padding: 2mm;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-size: 13px;
+            line-height: 1.2;
+            color: #000;
+        }
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .bold { font-weight: bold; }
+        .header { margin-bottom: 2mm; }
+        .header h2 { margin: 0; font-size: 18px; }
+        .divider { border-top: 1px dashed #000; margin: 1mm 0; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; border-bottom: 1px dashed #000; padding-bottom: 0.5mm; }
+        td { padding: 0.5mm 0; vertical-align: top; }
+        .totals { margin-top: 1mm; }
+        .footer { margin-top: 2mm; font-size: 10px; }
+        @media print {
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body onload="window.print();">
+    <div class="header text-center">
+        <h2 style="letter-spacing: 2px;">RESTOMANAGER</h2>
+        <p class="bold">AUTHENTIC CUISINE</p>
+        <p>123 Restaurant Street, City<br>
+        Tel: +123 456 789<br>
+        TRN: 100345678900003</p>
+    </div>
+
+    <div class="divider"></div>
+
+    <div style="display: flex; justify-content: space-between;">
+        <div>
+            <p>Date: <span class="bold">{{ order.created_at|date:"d/m/Y" }}</span><br>
+            Time: <span class="bold">{{ order.created_at|date:"H:i" }}</span><br>
+            Table: <span class="bold">{{ order.table.number }}</span></p>
+        </div>
+        <div class="text-right">
+            <p>Inv #: <span class="bold">{{ order.invoice_number }}</span><br>
+            Staff: <span class="bold">{{ order.staff.username|upper }}</span><br>
+            Status: <span class="bold">{{ order.get_status_display|upper }}</span></p>
+        </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>DESCRIPTION</th>
+                <th class="text-center">QTY</th>
+                <th class="text-right">AMOUNT</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in order.items.all %}
+            <tr>
+                <td>{{ item.menu_item.name|upper }}</td>
+                <td class="text-center">{{ item.quantity }}</td>
+                <td class="text-right">${{ item.get_total_item_price }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="divider"></div>
+
+    <div class="totals">
+        <table>
+            <tr>
+                <td>SUBTOTAL</td>
+                <td class="text-right">${{ order.subtotal }}</td>
+            </tr>
+            <tr>
+                <td>TAX ({{ order.tax_rate }}%)</td>
+                <td class="text-right">${{ order.tax_amount }}</td>
+            </tr>
+            <tr style="font-size: 16px;">
+                <td class="bold">NET TOTAL</td>
+                <td class="text-right bold">${{ order.total_price }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="text-center" style="margin-top: 5mm;">
+        <p class="bold" style="font-size: 14px;">PAYMENT METHOD: {{ order.get_payment_method_display|upper }}</p>
+    </div>
+
+    <div class="footer text-center">
+        <p>Thank you for your visit!<br>
+        Please come again.</p>
+    </div>
+
+    <div class="no-print text-center" style="margin-top: 20px;">
+        <button onclick="window.close();" style="padding: 10px;">Close Window</button>
+    </div>
+</body>
+</html>

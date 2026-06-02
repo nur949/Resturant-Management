@@ -1,0 +1,16 @@
+dj-database-url
+Django
+djangorestframework
+Pillow
+psycopg2-binary
+python-decouple
+django-cors-headers
+gunicorn
+whitenoise
+celery
+redis
+django-filter
+drf-yasg
+dj-database-url
+django-csp
+django-axes

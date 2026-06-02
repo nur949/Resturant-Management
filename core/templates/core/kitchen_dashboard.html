@@ -1,0 +1,216 @@
+{% extends 'core/base.html' %}
+
+{% block page_title %}Live Kitchen Monitor (KDS){% endblock %}
+
+{% block content %}
+<div x-data="kdsSystem()" x-init="init()" class="kds-wrapper">
+    <!-- Notification Sound -->
+    <audio id="newOrderSound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
+
+    <div class="d-flex justify-content-between align-items-center mb-6">
+        <div class="d-flex gap-3">
+            <div class="px-3 py-2 bg-white rounded-pill elevation-1 border-0 d-flex align-items-center gap-2">
+                <div :class="connectionStatus === 'online' ? 'bg-green-500' : 'bg-red-500'" class="w-2 h-2 rounded-full animate-pulse"></div>
+                <span class="text-xs font-bold uppercase tracking-widest text-gray-500" x-text="'System ' + connectionStatus"></span>
+            </div>
+            <div class="px-3 py-2 bg-white rounded-pill elevation-1 border-0 d-flex align-items-center gap-2">
+                <span class="text-xs font-bold uppercase tracking-widest text-gray-500">Active Tickets: <span class="text-primary" x-text="orders.length"></span></span>
+            </div>
+        </div>
+        <div class="text-xs font-medium text-gray-400 uppercase tracking-widest">
+            Last Sync: <span x-text="lastSyncTime"></span>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 row-cols-xxl-4 g-4" id="kitchen-container">
+        <template x-for="order in orders" :key="order.id">
+            <div class="col animate-fade-in">
+                <div class="card h-100 border-0 elevation-4 overflow-hidden d-flex flex-column" 
+                     :class="getPriorityClass(order.created_at)">
+                    <!-- Header -->
+                    <div class="p-4 border-bottom d-flex justify-content-between align-items-center"
+                         :class="getPriorityHeaderClass(order.created_at)">
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-widest mb-1 opacity-75">Table Ticket</p>
+                            <h5 class="fw-bold mb-0" x-text="'TABLE ' + order.table_number"></h5>
+                        </div>
+                        <div class="text-end">
+                            <p class="text-xs font-bold mb-1" x-text="formatTime(order.created_at)"></p>
+                            <p class="text-xs font-medium opacity-75" x-text="'#' + order.id"></p>
+                        </div>
+                    </div>
+
+                    <!-- Items -->
+                    <div class="p-4 flex-grow-1 bg-white">
+                        <div class="list-group list-group-flush">
+                            <template x-for="item in order.items" :key="item.id">
+                                <div class="list-group-item px-0 py-3 border-0 border-bottom d-flex align-items-center justify-content-between group"
+                                     :class="item.status === 'ready' || item.status === 'served' ? 'opacity-40' : ''">
+                                    <div class="d-flex align-items-center">
+                                        <div class="w-8 h-8 rounded bg-gray-100 flex items-center justify-center font-bold text-sm text-gray-600 me-3" x-text="item.quantity + 'x'"></div>
+                                        <span class="text-sm font-medium text-gray-800" :class="item.status === 'ready' ? 'text-decoration-line-through' : ''" x-text="item.name"></span>
+                                    </div>
+                                    
+                                    <div class="d-flex gap-2">
+                                        <template x-if="item.status === 'pending'">
+                                            <button class="btn btn-sm btn-primary rounded-pill p-2 flex items-center justify-center elevation-2" @click="updateItemStatus(item.id, 'preparing')">
+                                                <span class="material-symbols-outlined" style="font-size: 18px;">play_arrow</span>
+                                            </button>
+                                        </template>
+                                        <template x-if="item.status === 'preparing'">
+                                            <button class="btn btn-sm btn-success rounded-pill p-2 flex items-center justify-center elevation-2" @click="updateItemStatus(item.id, 'ready')">
+                                                <span class="material-symbols-outlined" style="font-size: 18px;">check</span>
+                                            </button>
+                                        </template>
+                                        <template x-if="item.status === 'ready'">
+                                            <span class="material-symbols-outlined text-success">task_alt</span>
+                                        </template>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="p-3 border-top d-flex justify-content-between align-items-center"
+                         :class="getPriorityFooterClass(order.created_at)">
+                        <span class="text-xs font-medium italic" x-text="'Server: ' + order.staff"></span>
+                        <span class="badge bg-white bg-opacity-20 text-white border-0 rounded px-2 py-1 text-xs font-bold uppercase" x-text="order.status"></span>
+                    </div>
+                </div>
+            </div>
+        </template>
+        
+        <!-- Empty State -->
+        <div x-show="orders.length === 0" class="col-12 py-5 text-center">
+            <div class="p-5">
+                <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="material-symbols-outlined text-gray-300" style="font-size: 40px;">restaurant</span>
+                </div>
+                <h4 class="fw-bold text-gray-400">All caught up!</h4>
+                <p class="text-gray-400 text-sm mt-2">New orders will appear here automatically.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .animate-fade-in { animation: fadeIn 0.4s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .order-new { border-left: 5px solid #1976d2 !important; }
+    .order-aging { border-left: 5px solid #f59e0b !important; }
+    .order-critical { border-left: 5px solid #dc2626 !important; animation: borderPulse 2s infinite; }
+    
+    @keyframes borderPulse {
+        0% { border-left-color: #dc2626; }
+        50% { border-left-color: #fca5a5; }
+        100% { border-left-color: #dc2626; }
+    }
+</style>
+
+<script>
+function kdsSystem() {
+    return {
+        orders: [],
+        connectionStatus: 'online',
+        lastSyncTime: '-',
+        pollingInterval: null,
+        knownOrderIds: new Set(),
+
+        init() {
+            this.fetchOrders();
+            this.pollingInterval = setInterval(() => this.fetchOrders(), 5000);
+            console.log('KDS Real-time Monitor Started.');
+        },
+
+        fetchOrders() {
+            fetch('/ajax/get-active-orders/')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        this.connectionStatus = 'online';
+                        this.lastSyncTime = new Date().toLocaleTimeString();
+                        
+                        // Check for new orders
+                        data.orders.forEach(order => {
+                            if (!this.knownOrderIds.has(order.id)) {
+                                if (this.knownOrderIds.size > 0) this.playNotification();
+                                this.knownOrderIds.add(order.id);
+                            }
+                        });
+
+                        // Sync ID set
+                        const currentIds = new Set(data.orders.map(o => o.id));
+                        this.knownOrderIds.forEach(id => {
+                            if (!currentIds.has(id)) this.knownOrderIds.delete(id);
+                        });
+
+                        this.orders = data.orders;
+                    }
+                })
+                .catch(err => {
+                    console.error('KDS Sync Error:', err);
+                    this.connectionStatus = 'offline';
+                });
+        },
+
+        updateItemStatus(itemId, status) {
+            const formData = new FormData();
+            formData.append('item_id', itemId);
+            formData.append('status', status);
+
+            fetch('/ajax/update-item-status/', {
+                method: 'POST',
+                headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    this.fetchOrders();
+                }
+            });
+        },
+
+        playNotification() {
+            const audio = document.getElementById('newOrderSound');
+            if (audio) {
+                audio.currentTime = 0;
+                audio.play().catch(e => console.log('Sound blocked. Interface interaction required.'));
+            }
+        },
+
+        formatTime(timestamp) {
+            const created = new Date(timestamp);
+            const diff = Math.floor((new Date() - created) / 60000);
+            if (diff < 1) return 'Just now';
+            return diff + 'm ago';
+        },
+
+        getPriorityClass(timestamp) {
+            const diff = Math.floor((new Date() - new Date(timestamp)) / 60000);
+            if (diff > 15) return 'order-critical';
+            if (diff > 8) return 'order-aging';
+            return 'order-new';
+        },
+
+        getPriorityHeaderClass(timestamp) {
+            const diff = Math.floor((new Date() - new Date(timestamp)) / 60000);
+            if (diff > 15) return 'bg-danger text-white';
+            if (diff > 8) return 'bg-warning text-dark';
+            return 'bg-primary text-white';
+        },
+
+        getPriorityFooterClass(timestamp) {
+            const diff = Math.floor((new Date() - new Date(timestamp)) / 60000);
+            if (diff > 15) return 'bg-danger bg-opacity-10 text-danger';
+            if (diff > 8) return 'bg-warning bg-opacity-10 text-warning-emphasis';
+            return 'bg-primary bg-opacity-10 text-primary';
+        }
+    }
+}
+</script>
+{% endblock %}
+
+

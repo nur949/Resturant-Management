@@ -1,0 +1,91 @@
+{% extends 'core/base.html' %}
+
+{% block page_title %}Bookings{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-6">
+    <div class="d-flex gap-2">
+        <a href="{% url 'reservation_add' %}" class="btn btn-mui-primary flex items-center">
+            <span class="material-symbols-outlined me-2">calendar_add</span> Secure Reservation
+        </a>
+        <a href="{% url 'customer_list' %}" class="btn btn-outline-primary flex items-center rounded-pill px-4">
+            <span class="material-symbols-outlined me-2">group</span> CRM Database
+        </a>
+    </div>
+</div>
+
+<div class="card elevation-1 border-0 overflow-hidden">
+    <div class="card-header bg-white py-3 border-0">
+        <h6 class="mb-0 font-medium text-gray-800">Upcoming Schedule</h6>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="ps-4 py-3 border-0 text-xs font-medium text-gray-500 uppercase">Customer Contact</th>
+                    <th class="py-3 border-0 text-xs font-medium text-gray-500 uppercase">Dining Area</th>
+                    <th class="py-3 border-0 text-xs font-medium text-gray-500 uppercase">Schedule</th>
+                    <th class="py-3 border-0 text-xs font-medium text-gray-500 uppercase">Party Size</th>
+                    <th class="py-3 border-0 text-xs font-medium text-gray-500 uppercase">Status</th>
+                    <th class="pe-4 py-3 border-0 text-xs font-medium text-gray-500 uppercase text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for res in reservations %}
+                <tr>
+                    <td class="ps-4">
+                        <div class="d-flex flex-column">
+                            <span class="text-sm font-medium text-gray-800">{{ res.customer.name }}</span>
+                            <span class="text-xs text-gray-400 font-bold tracking-tighter">{{ res.customer.phone }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge bg-gray-100 text-gray-600 border-0 px-2 py-1 rounded text-xs font-bold">
+                            TABLE {{ res.table.number }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="d-flex flex-column">
+                            <span class="text-sm font-medium text-gray-800">{{ res.date|date:"M j, Y" }}</span>
+                            <span class="text-xs text-primary font-bold uppercase">{{ res.time|time:"H:i" }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="text-sm font-bold text-gray-700">{{ res.guest_count }} PAX</span>
+                    </td>
+                    <td>
+                        {% if res.status == 'confirmed' %}
+                        <span class="badge bg-green-50 text-green-700 border-0 px-3 py-1 rounded-full text-xs font-medium">Confirmed</span>
+                        {% elif res.status == 'cancelled' %}
+                        <span class="badge bg-red-50 text-red-700 border-0 px-3 py-1 rounded-full text-xs font-medium">Cancelled</span>
+                        {% else %}
+                        <span class="badge bg-amber-50 text-amber-700 border-0 px-3 py-1 rounded-full text-xs font-medium">{{ res.get_status_display }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="pe-4 text-end">
+                        <div class="d-flex justify-content-end gap-1">
+                            <a href="{% url 'reservation_edit' res.id %}" class="btn btn-sm btn-light rounded-full p-2 text-gray-600 hover:text-primary" title="Edit Booking">
+                                <span class="material-symbols-outlined" style="font-size: 20px;">edit</span>
+                            </a>
+                            <a href="{% url 'reservation_delete' res.id %}" class="btn btn-sm btn-light rounded-full p-2 text-gray-600 hover:text-danger" title="Cancel/Delete">
+                                <span class="material-symbols-outlined" style="font-size: 20px;">delete</span>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center py-5">
+                        <div class="p-5">
+                            <span class="material-symbols-outlined text-gray-200" style="font-size: 64px;">calendar_today</span>
+                            <p class="text-gray-400 mt-3 fw-medium">No active reservations.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
