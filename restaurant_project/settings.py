@@ -90,9 +90,9 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 CSP_DEFAULT_SRC = ("'self'",)
 CSP_STYLE_SRC = ("'self'", "fonts.googleapis.com", "cdn.jsdelivr.net", "'unsafe-inline'")
 CSP_FONT_SRC = ("'self'", "fonts.gstatic.com", "fonts.googleapis.com", "cdn.jsdelivr.net")
-CSP_IMG_SRC = ("'self'", "data:", "res.cloudinary.com")
+CSP_IMG_SRC = ("'self'", "data:", "res.cloudinary.com", "*.cloudinary.com")
 CSP_SCRIPT_SRC = ("'self'", "cdn.jsdelivr.net", "unpkg.com", "'unsafe-inline'", "'unsafe-eval'")
-CSP_CONNECT_SRC = ("'self'",)
+CSP_CONNECT_SRC = ("'self'", "res.cloudinary.com")
 
 # Brute Force Protection (Axes)
 AUTHENTICATION_BACKENDS = [
