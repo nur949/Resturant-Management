@@ -1,71 +1,68 @@
 {% extends 'core/base.html' %}
 
-{% block page_title %}Customer Relationship Management{% endblock %}
+{% block page_title %}Customer Registry{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-6">
-    <h5 class="mb-0 fw-bold text-gray-800">Loyalty & Profiles</h5>
-    <a href="{% url 'customer_add' %}" class="btn btn-mui-primary flex items-center">
-        <span class="material-symbols-outlined me-2">person_add</span> Onboard New Customer
-    </a>
+<div class="flex flex-col md:flex-row gap-4 items-center mb-6">
+    <a href="{% url 'customer_add' %}" class="btn-flat">Register Customer</a>
+    
+    <div class="flex flex-1 max-w-md border border-gray-300 rounded bg-white px-3 py-1.5 ml-auto">
+        <span class="material-icons text-gray-400 text-sm mr-2 mt-0.5">search</span>
+        <input type="text" id="customerSearch" placeholder="Search profiles..." class="w-full text-sm outline-none">
+    </div>
 </div>
 
-<div class="card elevation-1 border-0">
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead class="bg-gray-50">
+<div class="app-card overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="table-flat">
+            <thead>
                 <tr>
-                    <th class="ps-4 py-3 border-0 text-xs font-medium text-gray-500 uppercase">Customer Identity</th>
-                    <th class="py-3 border-0 text-xs font-medium text-gray-500 uppercase">Communication</th>
-                    <th class="py-3 border-0 text-xs font-medium text-gray-500 uppercase">Loyalty Points</th>
-                    <th class="py-3 border-0 text-xs font-medium text-gray-500 uppercase text-center">Join Date</th>
-                    <th class="pe-4 py-3 border-0 text-xs font-medium text-gray-500 uppercase text-end">Operations</th>
+                    <th>Customer Identity</th>
+                    <th>Contact Info</th>
+                    <th>Rewards</th>
+                    <th class="text-center">Enrolled</th>
+                    <th class="text-center">Manage</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-100">
+            <tbody id="customerTable">
                 {% for customer in customers %}
-                <tr>
-                    <td class="ps-4">
-                        <div class="d-flex align-items-center">
-                            <div class="w-10 h-10 rounded-full bg-primary bg-opacity-10 text-primary flex items-center justify-center font-bold text-sm me-3">
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td>
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-gray-100 rounded text-gray-500 flex items-center justify-center text-xs font-bold shrink-0">
                                 {{ customer.name|first|upper }}
                             </div>
-                            <span class="font-medium text-gray-800">{{ customer.name }}</span>
+                            <span class="text-sm font-bold text-gray-900">{{ customer.name }}</span>
                         </div>
                     </td>
                     <td>
-                        <div class="d-flex flex-column">
-                            <span class="text-sm font-medium text-gray-700">{{ customer.phone }}</span>
-                            <span class="text-xs text-gray-400">{{ customer.email|default:"No email recorded" }}</span>
-                        </div>
+                        <p class="text-xs font-bold text-gray-700">{{ customer.phone }}</p>
+                        <p class="text-[10px] text-gray-400 font-medium italic">{{ customer.email|default:"No email" }}</p>
                     </td>
                     <td>
-                        <div class="d-flex align-items-center gap-2">
-                            <span class="material-symbols-outlined text-amber-500" style="font-size: 18px;">stars</span>
-                            <span class="text-sm font-bold text-gray-700">{{ customer.loyalty_points }} PTS</span>
+                        <div class="flex items-center gap-2">
+                            <span class="material-icons text-amber-500 text-sm">stars</span>
+                            <span class="text-xs font-black text-gray-700">{{ customer.loyalty_points }} <span class="text-[9px] font-bold text-gray-400 uppercase">PTS</span></span>
                         </div>
                     </td>
                     <td class="text-center">
-                        <span class="text-sm text-gray-500">{{ customer.created_at|date:"M d, Y" }}</span>
+                        <span class="text-xs font-medium text-gray-500">{{ customer.created_at|date:"d M, Y" }}</span>
                     </td>
-                    <td class="pe-4 text-end">
-                        <div class="d-flex justify-content-end gap-1">
-                            <a href="{% url 'customer_edit' customer.id %}" class="btn btn-sm btn-light rounded-full p-2 text-gray-600 hover:text-primary" title="Edit Profile">
-                                <span class="material-symbols-outlined" style="font-size: 20px;">edit</span>
+                    <td class="text-center">
+                        <div class="flex justify-center gap-2">
+                            <a href="{% url 'customer_edit' customer.id %}" class="text-gray-400 hover:text-blue-600">
+                                <span class="material-icons text-lg">edit</span>
                             </a>
-                            <a href="{% url 'customer_delete' customer.id %}" class="btn btn-sm btn-light rounded-full p-2 text-gray-600 hover:text-danger" title="Purge Record">
-                                <span class="material-symbols-outlined" style="font-size: 20px;">delete</span>
+                            <a href="{% url 'customer_delete' customer.id %}" class="text-gray-300 hover:text-red-500">
+                                <span class="material-icons text-lg">delete</span>
                             </a>
                         </div>
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="5" class="text-center py-5">
-                        <div class="p-5">
-                            <span class="material-symbols-outlined text-gray-200" style="font-size: 64px;">person_search</span>
-                            <p class="text-gray-400 mt-3 fw-medium">Customer database is currently empty.</p>
-                        </div>
+                    <td colspan="5" class="py-20 text-center">
+                        <p class="text-xs font-bold uppercase tracking-widest text-gray-400 italic">Registry is currently empty</p>
                     </td>
                 </tr>
                 {% endfor %}
@@ -73,5 +70,13 @@
         </table>
     </div>
 </div>
-{% endblock %}
 
+<script>
+    document.getElementById('customerSearch').addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase();
+        document.querySelectorAll('#customerTable tr').forEach(row => {
+            row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none';
+        });
+    });
+</script>
+{% endblock %}
