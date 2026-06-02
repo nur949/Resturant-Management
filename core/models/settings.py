@@ -9,7 +9,7 @@ class RestaurantSetting(models.Model):
     logo = models.ImageField(upload_to='settings/', blank=True, null=True)
     
     # Financial Settings
-    currency_symbol = models.CharField(max_length=10, default='$')
+    currency_symbol = models.CharField(max_length=10, default='৳')
     default_tax_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
     trn_number = models.CharField(max_length=50, blank=True, null=True, verbose_name="Tax Registration Number")
     
