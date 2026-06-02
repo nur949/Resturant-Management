@@ -59,18 +59,13 @@ INSTALLED_APPS = [
 ]
 
 # Cloudinary Storage Configuration
+os.environ['CLOUDINARY_URL'] = 'cloudinary://843314125975649:8hLPRDUFVTRLejg7SsxgIsnBTDY@retopro'
+
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': 'retopro',
     'API_KEY': '843314125975649',
     'API_SECRET': '8hLPRDUFVTRLejg7SsxgIsnBTDY',
 }
-
-cloudinary.config(
-    cloud_name='retopro',
-    api_key='843314125975649',
-    api_secret='8hLPRDUFVTRLejg7SsxgIsnBTDY',
-    secure=True
-)
 
 # Security Hardening
 SECURE_SSL_REDIRECT = False
