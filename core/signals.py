@@ -39,6 +39,17 @@ def log_action(instance, action):
         changes=changes
     )
 
+@receiver(post_save, sender=Reservation)
+def update_table_status_on_reservation(sender, instance, **kwargs):
+    table = instance.table
+    if instance.status == 'confirmed':
+        table.status = 'reserved'
+    elif instance.status == 'arrived':
+        table.status = 'occupied'
+    elif instance.status in ['cancelled', 'no-show']:
+        table.status = 'available'
+    table.save()
+
 @receiver(post_save)
 def audit_save(sender, instance, created, **kwargs):
     if sender in [User, Category, MenuItem, Table, Order, OrderItem, Expense, Ingredient, RecipeItem, Customer, Reservation]:
