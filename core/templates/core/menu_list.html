@@ -1,125 +1,64 @@
 {% extends 'core/base.html' %}
 
-{% block page_title %}Menu Catalog{% endblock %}
+{% block page_title %}Product Catalog{% endblock %}
 
 {% block content %}
-<!-- Premium Controls: Floating Feel -->
-<div class="app-card p-3 mb-8 sticky top-20 z-20 bg-white/90 backdrop-blur-xl">
-    <div class="flex flex-col md:flex-row gap-4 items-center">
-        <!-- Action Buttons -->
-        <div class="flex gap-2 w-full md:w-auto">
-            <a href="{% url 'menu_add' %}" class="btn-brand flex-1 md:flex-none justify-center">
-                <span class="material-symbols-rounded">add_circle</span> Add Dish
-            </a>
-            <a href="{% url 'category_add' %}" class="flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all flex-1 md:flex-none justify-center">
-                <span class="material-symbols-rounded text-sm">folder_open</span> Categories
-            </a>
-        </div>
-        
-        <!-- Search: Integrated Feel -->
-        <div class="relative flex-1 w-full group">
-            <span class="absolute inset-y-0 left-4 flex items-center text-slate-400 group-focus-within:text-teal-600 transition-colors">
-                <span class="material-symbols-rounded">search</span>
-            </span>
-            <input type="text" id="menuSearch" placeholder="Find delicious items..." 
-                   class="w-full bg-slate-100/50 border border-transparent focus:border-teal-500 focus:bg-white rounded-xl py-2.5 pl-12 pr-4 text-sm font-medium transition-all outline-none">
-        </div>
-        
-        <!-- Filter: Minimalist -->
-        <div class="w-full md:w-64">
-            <select id="categoryFilter" onchange="filterCategory(this.value)" 
-                    class="w-full bg-slate-100/50 border border-transparent hover:border-slate-200 rounded-xl py-2.5 px-4 text-xs font-bold text-slate-600 cursor-pointer transition-all outline-none appearance-none">
-                <option value="all">🍽️ View All Cuisine</option>
-                {% for cat in categories %}
-                <option value="cat-{{ cat.id }}">{{ cat.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
+<!-- Simple Toolbar -->
+<div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+    <div class="flex gap-2">
+        <a href="{% url 'menu_add' %}" class="btn-flat">Add New Item</a>
+        <a href="{% url 'category_add' %}" class="btn-flat btn-flat-outline text-xs">Categories</a>
+    </div>
+    
+    <div class="flex flex-1 max-w-sm border border-gray-300 rounded bg-white px-3 py-1.5">
+        <span class="material-icons text-gray-400 text-sm mr-2 mt-0.5">search</span>
+        <input type="text" id="menuSearch" placeholder="Search menu..." class="w-full text-sm outline-none">
     </div>
 </div>
 
-<!-- Modern Menu Grid -->
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6" id="menu-grid">
+<!-- Simple Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4" id="menu-grid">
     {% for item in menu_items %}
-    <div class="menu-item-card cat-{{ item.category.id }}" data-name="{{ item.name|lower }}">
-        <div class="app-card h-full flex flex-col group hover:-translate-y-2 transition-all duration-300">
-            <!-- Image Area -->
-            <div class="relative aspect-[4/3] overflow-hidden rounded-t-xl bg-slate-100">
-                {% if item.image %}
-                    <img src="{{ item.image.url }}" alt="{{ item.name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                {% else %}
-                    <div class="w-full h-full flex flex-col items-center justify-center text-slate-300">
-                        <span class="material-symbols-rounded text-5xl mb-2">restaurant</span>
-                        <span class="text-[10px] font-black uppercase tracking-widest">No Visual</span>
-                    </div>
-                {% endif %}
-                
-                <!-- Floating Price Tag -->
-                <div class="absolute top-3 right-3">
-                    <div class="bg-white/90 backdrop-blur shadow-lg px-3 py-1.5 rounded-xl border border-white/20">
-                        <span class="text-sm font-black text-slate-900 italic">Tk {{ item.price|floatformat:0 }}</span>
-                    </div>
+    <div class="app-card overflow-hidden menu-item-card" data-name="{{ item.name|lower }}">
+        <div class="aspect-video bg-gray-100 border-b border-gray-100 relative">
+            {% if item.image %}
+                <img src="{{ item.image.url }}" alt="{{ item.name }}" class="w-full h-full object-cover">
+            {% else %}
+                <div class="w-full h-full flex items-center justify-center text-gray-300">
+                    <span class="material-icons text-4xl">image_not_supported</span>
                 </div>
-
-                <!-- Availability Overlay -->
-                {% if not item.is_available %}
-                <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-[2px] flex items-center justify-center p-6 text-center">
-                    <div class="border-2 border-white/30 px-4 py-2 rounded-lg transform -rotate-12">
-                        <span class="text-white font-black text-xs uppercase tracking-tighter">Sold Out</span>
-                    </div>
-                </div>
-                {% endif %}
-            </div>
+            {% endif %}
             
-            <!-- Content Area -->
-            <div class="p-5 flex flex-col flex-1">
-                <div class="mb-3">
-                    <span class="text-[10px] font-black text-teal-600 uppercase tracking-widest bg-teal-50 px-2 py-0.5 rounded-md">{{ item.category.name }}</span>
-                    <h3 class="text-base font-bold text-slate-900 mt-2 truncate">{{ item.name }}</h3>
+            {% if not item.is_available %}
+            <div class="absolute inset-0 bg-white/80 flex items-center justify-center text-[10px] font-bold text-red-600 uppercase">
+                Unavailable
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="p-3">
+            <span class="text-[10px] font-bold text-blue-600 uppercase tracking-wider">{{ item.category.name }}</span>
+            <h3 class="text-sm font-semibold text-gray-900 truncate mb-1">{{ item.name }}</h3>
+            <p class="text-xs font-bold text-gray-900 mb-3">Tk {{ item.price }}</p>
+            
+            <div class="flex justify-between items-center pt-2 border-t border-gray-50">
+                <div class="flex gap-2">
+                    <a href="{% url 'menu_edit' item.id %}" class="text-gray-400 hover:text-blue-600">
+                        <span class="material-icons text-sm">edit</span>
+                    </a>
+                    <a href="{% url 'menu_delete' item.id %}" class="text-gray-400 hover:text-red-600">
+                        <span class="material-icons text-sm">delete</span>
+                    </a>
                 </div>
-                
-                <p class="text-xs text-slate-500 leading-relaxed line-clamp-2 mb-6 flex-1 italic">
-                    {{ item.description|default:"Chef's special selection prepared with premium ingredients." }}
-                </p>
-                
-                <!-- Card Footer: Integrated Actions -->
-                <div class="pt-4 border-t border-slate-50 flex items-center justify-between">
-                    <div class="flex items-center gap-1">
-                        <a href="{% url 'menu_edit' item.id %}" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-teal-600 hover:bg-teal-50 transition-all" title="Edit">
-                            <span class="material-symbols-rounded text-lg">edit_square</span>
-                        </a>
-                        <a href="{% url 'menu_delete' item.id %}" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all" title="Remove">
-                            <span class="material-symbols-rounded text-lg">delete_sweep</span>
-                        </a>
-                    </div>
-                    
-                    <!-- Simplified Availability Toggle (Visual) -->
-                    <div class="flex items-center gap-2">
-                        <span class="text-[10px] font-bold text-slate-400 uppercase">Live</span>
-                        <div class="w-8 h-4 rounded-full relative transition-colors {% if item.is_available %}bg-teal-500{% else %}bg-slate-200{% endif %}">
-                            <div class="absolute top-0.5 left-0.5 w-3 h-3 bg-white rounded-full transition-transform {% if item.is_available %}translate-x-4{% endif %} shadow-sm"></div>
-                        </div>
-                    </div>
-                </div>
+                <div class="w-2 h-2 rounded-full {% if item.is_available %}bg-green-500{% else %}bg-gray-300{% endif %}"></div>
             </div>
         </div>
-    </div>
-    {% empty %}
-    <!-- Empty State -->
-    <div class="col-span-full py-20 text-center">
-        <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span class="material-symbols-rounded text-slate-300 text-4xl">inventory_2</span>
-        </div>
-        <h4 class="text-slate-900 font-bold">The catalog is empty</h4>
-        <p class="text-sm text-slate-400">Start by adding your first signature dish.</p>
     </div>
     {% endfor %}
 </div>
 
 <script>
-    // Modern Search Logic
     const searchInput = document.getElementById('menuSearch');
-    const menuGrid = document.getElementById('menu-grid');
     const items = document.querySelectorAll('.menu-item-card');
 
     searchInput.addEventListener('input', (e) => {
@@ -129,15 +68,5 @@
             item.style.display = name.includes(query) ? 'block' : 'none';
         });
     });
-
-    function filterCategory(catId) {
-        items.forEach(item => {
-            if (catId === 'all' || item.classList.contains(catId)) {
-                item.style.display = 'block';
-            } else {
-                item.style.display = 'none';
-            }
-        });
-    }
 </script>
 {% endblock %}

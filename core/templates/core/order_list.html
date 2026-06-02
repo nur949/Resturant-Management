@@ -1,110 +1,69 @@
 {% extends 'core/base.html' %}
 
-{% block page_title %}Sales History{% endblock %}
+{% block page_title %}Sales Archive{% endblock %}
 
 {% block content %}
-<!-- Enterprise Filter Bar -->
-<div class="flex flex-col md:flex-row gap-4 items-center mb-8 sticky top-16 z-20 bg-slate-50/80 backdrop-blur-md py-4 border-b border-slate-100 -mx-4 px-4 lg:-mx-8 lg:px-8">
-    <div class="w-full md:w-auto">
-        <div class="inline-flex p-1 bg-slate-100 rounded-xl">
-            <button class="px-5 py-2 bg-white text-slate-900 shadow-sm rounded-lg text-xs font-black uppercase tracking-widest transition-all">All Records</button>
-            <button class="px-5 py-2 text-slate-500 hover:text-slate-700 rounded-lg text-xs font-bold uppercase tracking-widest transition-all">Paid Only</button>
-        </div>
-    </div>
-    
-    <div class="relative flex-1 w-full group">
-        <span class="absolute inset-y-0 left-4 flex items-center text-slate-400 group-focus-within:text-teal-600 transition-colors">
-            <span class="material-symbols-rounded">search</span>
-        </span>
-        <input type="text" id="orderSearch" placeholder="Search by invoice #, table, or staff..." 
-               class="w-full bg-white border border-slate-200 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 rounded-2xl py-3 pl-12 pr-4 text-sm font-medium transition-all outline-none shadow-sm">
+<div class="flex flex-col md:flex-row gap-4 items-center mb-6">
+    <div class="flex flex-1 max-w-md border border-gray-300 rounded bg-white px-3 py-1.5">
+        <span class="material-icons text-gray-400 text-sm mr-2 mt-0.5">search</span>
+        <input type="text" id="orderSearch" placeholder="Filter by invoice, table..." class="w-full text-sm outline-none">
     </div>
 
-    <div class="w-full md:w-auto flex gap-2">
-        <button class="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-3 bg-white border border-slate-200 rounded-2xl text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all">
-            <span class="material-symbols-rounded text-sm">calendar_month</span> Date Range
-        </button>
-        <a href="{% url 'export_sales_csv' %}" class="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-3 bg-slate-900 text-white rounded-2xl text-xs font-bold hover:bg-slate-800 transition-all shadow-xl shadow-slate-200">
-            <span class="material-symbols-rounded text-sm">download</span> Export
-        </a>
+    <div class="flex gap-2">
+        <button class="btn-flat btn-flat-outline text-[11px] uppercase">Filter</button>
+        <a href="{% url 'export_sales_csv' %}" class="btn-flat text-[11px] uppercase">Export CSV</a>
     </div>
 </div>
 
-<!-- Modern Transaction Table -->
-<div class="app-card overflow-hidden border-none shadow-xl shadow-slate-200/50">
-    <div class="table-responsive-custom border-none rounded-none overflow-x-auto">
-        <table class="w-full text-left border-collapse">
+<div class="app-card overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="table-flat">
             <thead>
-                <tr class="bg-slate-50/50 border-b border-slate-100">
-                    <th class="px-6 py-5 text-small-caps">Invoice & Origin</th>
-                    <th class="px-6 py-5 text-small-caps hidden sm:table-cell text-center">Fulfillment</th>
-                    <th class="px-6 py-5 text-small-caps">Timestamp</th>
-                    <th class="px-6 py-5 text-small-caps text-right">Settlement</th>
-                    <th class="px-6 py-5 text-small-caps text-center">Actions</th>
+                <tr>
+                    <th>Invoice</th>
+                    <th>Details</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th class="text-right">Total</th>
+                    <th class="text-center">Actions</th>
                 </tr>
             </thead>
-            <tbody id="orderTable" class="divide-y divide-slate-50">
+            <tbody id="orderTable">
                 {% for order in orders %}
-                <tr class="hover:bg-slate-50/50 transition-colors group">
-                    <td class="px-6 py-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center font-black text-[10px] shadow-lg shrink-0">
-                                #{{ order.invoice_number|slice:"-3:" }}
-                            </div>
-                            <div>
-                                <p class="text-xs font-black text-slate-900 mb-0.5">INV-{{ order.invoice_number }}</p>
-                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter italic">Table {{ order.table.number }} • {{ order.staff.username }}</p>
-                            </div>
-                        </div>
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="font-bold text-gray-900">#{{ order.invoice_number }}</td>
+                    <td>
+                        <p class="text-xs font-medium text-gray-700">Table {{ order.table.number }}</p>
+                        <p class="text-[10px] text-gray-400 uppercase tracking-tighter">{{ order.staff.username }}</p>
                     </td>
-                    <td class="px-6 py-4 hidden sm:table-cell text-center">
-                        {% if order.status == 'paid' %}
-                        <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full border border-emerald-100">
-                            <span class="w-1 h-1 rounded-full bg-emerald-500 animate-pulse"></span>
-                            <span class="text-[9px] font-black uppercase tracking-wider italic">Settled</span>
-                        </div>
-                        {% elif order.status == 'pending' %}
-                        <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-orange-50 text-orange-600 rounded-full border border-orange-100">
-                            <span class="w-1 h-1 rounded-full bg-orange-500"></span>
-                            <span class="text-[9px] font-black uppercase tracking-wider">Awaiting</span>
-                        </div>
-                        {% else %}
-                        <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-600 rounded-full border border-blue-100">
-                            <span class="w-1 h-1 rounded-full bg-blue-500"></span>
-                            <span class="text-[9px] font-black uppercase tracking-wider italic">{{ order.get_status_display }}</span>
-                        </div>
-                        {% endif %}
+                    <td>
+                        <p class="text-xs font-medium text-gray-700">{{ order.created_at|date:"d M, Y" }}</p>
+                        <p class="text-[10px] text-gray-400 uppercase">{{ order.created_at|date:"H:i" }}</p>
                     </td>
-                    <td class="px-6 py-4">
-                        <p class="text-xs font-bold text-slate-700 mb-0.5">{{ order.created_at|date:"d M, Y" }}</p>
-                        <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">{{ order.created_at|date:"h:i A" }}</p>
+                    <td>
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase
+                            {% if order.status == 'paid' %}bg-green-50 text-green-700{% elif order.status == 'pending' %}bg-amber-50 text-amber-700{% else %}bg-blue-50 text-blue-700{% endif %}">
+                            {{ order.get_status_display }}
+                        </span>
                     </td>
-                    <td class="px-6 py-4 text-right">
-                        <span class="text-sm font-black text-slate-900 tracking-tighter">Tk {{ order.total_price|floatformat:2 }}</span>
-                    </td>
-                    <td class="px-6 py-4">
-                        <div class="flex items-center justify-center gap-1.5">
-                            <a href="{% url 'order_detail' order.id %}" class="w-8 h-8 flex items-center justify-center bg-white border border-slate-100 rounded-lg text-slate-400 hover:text-teal-600 hover:border-teal-200 transition-all shadow-sm" title="View Terminal">
-                                <span class="material-symbols-rounded text-base">monitor_heart</span>
+                    <td class="text-right font-bold text-gray-900">Tk {{ order.total_price }}</td>
+                    <td class="text-center">
+                        <div class="flex justify-center gap-2">
+                            <a href="{% url 'order_detail' order.id %}" class="text-gray-400 hover:text-blue-600" title="Terminal">
+                                <span class="material-icons text-lg">monitor</span>
                             </a>
-                            <a href="{% url 'order_print' order.id %}" target="_blank" class="w-8 h-8 flex items-center justify-center bg-white border border-slate-100 rounded-lg text-slate-400 hover:text-emerald-600 hover:border-emerald-200 transition-all shadow-sm" title="Print Invoice">
-                                <span class="material-symbols-rounded text-base">print</span>
+                            <a href="{% url 'order_print' order.id %}" target="_blank" class="text-gray-400 hover:text-green-600" title="Receipt">
+                                <span class="material-icons text-lg">print</span>
                             </a>
-                            <a href="{% url 'order_delete' order.id %}" class="w-8 h-8 flex items-center justify-center bg-white border border-slate-100 rounded-lg text-slate-300 hover:text-red-500 hover:border-red-100 transition-all shadow-sm" title="Delete">
-                                <span class="material-symbols-rounded text-base">delete</span>
+                            <a href="{% url 'order_delete' order.id %}" class="text-gray-300 hover:text-red-500" title="Delete">
+                                <span class="material-icons text-lg">delete</span>
                             </a>
                         </div>
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="5" class="py-24 text-center bg-slate-50/30">
-                        <div class="w-20 h-20 bg-white rounded-3xl shadow-xl shadow-slate-200 flex items-center justify-center mx-auto mb-6">
-                            <span class="material-symbols-rounded text-slate-200 text-4xl">receipt_long</span>
-                        </div>
-                        <h4 class="text-lg font-black text-slate-900">No Transactions Found</h4>
-                        <p class="text-sm text-slate-400 font-bold uppercase tracking-widest mt-2">The financial log is currently empty</p>
-                    </td>
+                    <td colspan="6" class="py-12 text-center text-gray-400 text-xs font-bold uppercase tracking-widest italic">No transactions found</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -112,31 +71,12 @@
     </div>
 </div>
 
-<!-- Mobile Quick Summary (Sticky Bottom) -->
-<div class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-2xl shadow-2xl z-40 md:hidden flex items-center gap-4 border border-slate-700 animate-fade-in">
-    <div class="flex flex-col">
-        <span class="text-[8px] font-black text-slate-400 uppercase leading-none">Total Invoiced</span>
-        <span class="text-sm font-black italic">Tk {{ total_sales|default:"0.00" }}</span>
-    </div>
-    <div class="w-px h-6 bg-slate-700"></div>
-    <button class="text-xs font-black uppercase tracking-tighter text-teal-400">Filters</button>
-</div>
-
 <script>
-    const searchInput = document.getElementById('orderSearch');
-    const tableRows = document.querySelectorAll('#orderTable tr');
-
-    searchInput.addEventListener('input', (e) => {
+    document.getElementById('orderSearch').addEventListener('input', (e) => {
         const query = e.target.value.toLowerCase();
-        tableRows.forEach(row => {
-            const content = row.innerText.toLowerCase();
-            row.style.display = content.includes(query) ? '' : 'none';
+        document.querySelectorAll('#orderTable tr').forEach(row => {
+            row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none';
         });
     });
 </script>
-
-<style>
-    .animate-fade-in { animation: fadeIn 0.4s ease-out; }
-    @keyframes fadeIn { from { opacity: 0; transform: translate(-50%, 20px); } to { opacity: 1; transform: translate(-50%, 0); } }
-</style>
 {% endblock %}

@@ -1,88 +1,59 @@
 {% extends 'core/base.html' %}
 
-{% block page_title %}Expenditure Ledger{% endblock %}
+{% block page_title %}Expense Logs{% endblock %}
 
 {% block content %}
-<!-- Premium Financial Header -->
-<div class="flex flex-col md:flex-row gap-4 items-center mb-8 sticky top-16 z-20 bg-slate-50/80 backdrop-blur-md py-4 border-b border-slate-100 -mx-4 px-4 lg:-mx-8 lg:px-8">
-    <a href="{% url 'expense_add' %}" class="btn-brand shadow-xl shadow-teal-100/50 w-full md:w-auto">
-        <span class="material-symbols-rounded">add_card</span> Record Expense
-    </a>
+<div class="flex flex-col md:flex-row gap-4 items-center mb-6">
+    <a href="{% url 'expense_add' %}" class="btn-flat">New Entry</a>
     
-    <div class="relative flex-1 w-full group">
-        <span class="absolute inset-y-0 left-4 flex items-center text-slate-400 group-focus-within:text-teal-600 transition-colors">
-            <span class="material-symbols-rounded text-sm">search</span>
-        </span>
-        <input type="text" id="expenseSearch" placeholder="Audit by category or memo..." 
-               class="w-full bg-white border border-slate-200 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 rounded-2xl py-3 pl-12 pr-4 text-xs font-bold transition-all outline-none shadow-sm">
+    <div class="flex flex-1 max-w-md border border-gray-300 rounded bg-white px-3 py-1.5">
+        <span class="material-icons text-gray-400 text-sm mr-2 mt-0.5">search</span>
+        <input type="text" id="expenseSearch" placeholder="Filter ledger..." class="w-full text-sm outline-none">
     </div>
 
-    <div class="w-full md:w-auto flex items-center gap-2 px-4 py-3 bg-white border border-slate-200 rounded-2xl">
-        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Net Outflow</span>
-        <div class="w-px h-4 bg-slate-200 mx-1"></div>
-        <span class="text-xs font-black text-rose-600 italic">Tk {{ total_expenses|default:"0.00"|floatformat:0 }}</span>
+    <div class="px-4 py-2 bg-white border border-gray-200 rounded">
+        <span class="text-[10px] font-bold text-gray-400 uppercase">Cycle Total</span>
+        <p class="text-xs font-black text-red-600 italic">Tk {{ total_expenses|default:"0.00"|floatformat:0 }}</p>
     </div>
 </div>
 
-<!-- Modern Expense Table -->
-<div class="app-card overflow-hidden border-none shadow-xl shadow-slate-200/40">
-    <div class="table-responsive-custom border-none rounded-none overflow-x-auto">
-        <table class="w-full text-left border-collapse">
+<div class="app-card overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="table-flat">
             <thead>
-                <tr class="bg-slate-50/50 border-b border-slate-100">
-                    <th class="px-6 py-5 text-small-caps">Entry Details</th>
-                    <th class="px-6 py-5 text-small-caps">Classification</th>
-                    <th class="px-6 py-5 text-small-caps text-right">Value</th>
-                    <th class="px-6 py-5 text-small-caps hidden lg:table-cell">Officer Note</th>
-                    <th class="px-6 py-5 text-small-caps text-center">Actions</th>
+                <tr>
+                    <th>Entry Timestamp</th>
+                    <th>Classification</th>
+                    <th class="text-right">Amount</th>
+                    <th class="hidden lg:table-cell">Memo</th>
+                    <th class="text-center">Manage</th>
                 </tr>
             </thead>
-            <tbody id="expenseTable" class="divide-y divide-slate-50">
+            <tbody id="expenseTable">
                 {% for expense in expenses %}
-                <tr class="hover:bg-slate-50/50 transition-colors group">
-                    <td class="px-6 py-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center font-black text-[10px] shadow-sm shrink-0">
-                                <span class="material-symbols-rounded text-sm">outbox</span>
-                            </div>
-                            <div>
-                                <p class="text-xs font-black text-slate-900 mb-0.5">{{ expense.date|date:"d M, Y" }}</p>
-                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{{ expense.date|date:"H:i A" }}</p>
-                            </div>
-                        </div>
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td>
+                        <p class="text-xs font-bold text-gray-900">{{ expense.date|date:"d M, Y" }}</p>
+                        <p class="text-[10px] text-gray-400 uppercase tracking-tighter">{{ expense.date|date:"H:i" }}</p>
                     </td>
-                    <td class="px-6 py-4">
-                        <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 text-slate-600 rounded-full border border-slate-200 group-hover:bg-white transition-colors">
-                            <span class="text-[9px] font-black uppercase tracking-tighter">{{ expense.get_category_display }}</span>
-                        </div>
+                    <td>
+                        <span class="text-[10px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded uppercase">{{ expense.get_category_display }}</span>
                     </td>
-                    <td class="px-6 py-4 text-right">
-                        <span class="text-sm font-black text-rose-600 tracking-tighter">- Tk {{ expense.amount|floatformat:2 }}</span>
+                    <td class="text-right font-bold text-red-600 text-sm">
+                        - Tk {{ expense.amount }}
                     </td>
-                    <td class="px-6 py-4 hidden lg:table-cell">
-                        <p class="text-[11px] text-slate-500 font-medium italic line-clamp-1 max-w-xs">
-                            {{ expense.description|default:"Standard operational expenditure logged" }}
-                        </p>
+                    <td class="hidden lg:table-cell">
+                        <p class="text-[11px] text-gray-500 truncate max-w-xs italic">{{ expense.description|default:"-" }}</p>
                     </td>
-                    <td class="px-6 py-4">
-                        <div class="flex items-center justify-center gap-1.5">
-                            <a href="{% url 'expense_edit' expense.id %}" class="w-8 h-8 flex items-center justify-center bg-white border border-slate-100 rounded-lg text-slate-400 hover:text-teal-600 hover:border-teal-200 transition-all shadow-sm" title="Edit Entry">
-                                <span class="material-symbols-rounded text-base">edit_square</span>
+                    <td class="text-center">
+                        <div class="flex justify-center gap-2">
+                            <a href="{% url 'expense_edit' expense.id %}" class="text-gray-400 hover:text-blue-600">
+                                <span class="material-icons text-lg">edit</span>
                             </a>
-                            <a href="{% url 'expense_delete' expense.id %}" class="w-8 h-8 flex items-center justify-center bg-white border border-slate-100 rounded-lg text-slate-300 hover:text-red-500 hover:border-red-100 transition-all shadow-sm" title="Remove Entry">
-                                <span class="material-symbols-rounded text-base">delete_sweep</span>
+                            <a href="{% url 'expense_delete' expense.id %}" class="text-gray-300 hover:text-red-500">
+                                <span class="material-icons text-lg">delete</span>
                             </a>
                         </div>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="5" class="py-24 text-center bg-slate-50/30">
-                        <div class="w-20 h-20 bg-white rounded-3xl shadow-xl shadow-slate-200 flex items-center justify-center mx-auto mb-6">
-                            <span class="material-symbols-rounded text-slate-200 text-4xl">account_balance_wallet</span>
-                        </div>
-                        <h4 class="text-lg font-black text-slate-900">Treasury is Clear</h4>
-                        <p class="text-sm text-slate-400 font-bold uppercase tracking-widest mt-2">No expenses recorded in the current cycle</p>
                     </td>
                 </tr>
                 {% endfor %}
@@ -92,14 +63,10 @@
 </div>
 
 <script>
-    const searchInput = document.getElementById('expenseSearch');
-    const tableRows = document.querySelectorAll('#expenseTable tr');
-
-    searchInput.addEventListener('input', (e) => {
+    document.getElementById('expenseSearch').addEventListener('input', (e) => {
         const query = e.target.value.toLowerCase();
-        tableRows.forEach(row => {
-            const content = row.innerText.toLowerCase();
-            row.style.display = content.includes(query) ? '' : 'none';
+        document.querySelectorAll('#expenseTable tr').forEach(row => {
+            row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none';
         });
     });
 </script>
