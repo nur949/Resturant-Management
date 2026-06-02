@@ -3,45 +3,69 @@
 {% block page_title %}{{ title|default:"Management Console" }}{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-12 col-md-8 col-lg-6">
-        <div class="card elevation-1 border-0 overflow-hidden">
-            <div class="card-header bg-white py-4 border-0 text-center">
-                <div class="w-16 h-16 bg-primary bg-opacity-5 rounded-circle d-flex align-items-center justify-center mx-auto mb-3">
-                    <span class="material-symbols-outlined text-primary text-3xl">edit_note</span>
+<div class="flex justify-center items-center py-6 sm:py-12">
+    <div class="w-full max-w-2xl">
+        <div class="app-card overflow-hidden border-none shadow-2xl shadow-slate-200/50">
+            <!-- Premium Form Header -->
+            <div class="p-8 border-b border-slate-50 bg-white text-center relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-tr from-teal-50/50 via-transparent to-transparent"></div>
+                
+                <div class="relative z-10">
+                    <div class="w-16 h-16 bg-slate-900 text-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-slate-200 group hover:rotate-6 transition-transform duration-500">
+                        <span class="material-symbols-rounded text-3xl">edit_note</span>
+                    </div>
+                    <h2 class="text-xl font-black text-slate-900 tracking-tight uppercase italic mb-1">{{ title }}</h2>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Secure Configuration Interface</p>
                 </div>
-                <h4 class="fw-bold text-gray-800 mb-1">{{ title }}</h4>
-                <p class="text-xs text-gray-400 font-bold uppercase tracking-widest mb-0">Configuration Interface</p>
             </div>
-            <div class="card-body p-4 p-md-5 pt-0">
-                <form method="post" enctype="multipart/form-data">
+
+            <!-- Modern Form Body -->
+            <div class="p-6 sm:p-10 bg-white">
+                <form method="post" enctype="multipart/form-data" class="space-y-8">
                     {% csrf_token %}
-                    <div class="d-flex flex-column gap-4">
+                    <div class="space-y-6">
                         {% for field in form %}
-                        <div class="form-group">
-                            <label class="form-label text-xs fw-bold text-gray-500 uppercase tracking-widest mb-2 ms-1">
+                        <div class="group">
+                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1 group-focus-within:text-teal-600 transition-colors">
                                 {{ field.label }}
                             </label>
-                            {{ field }}
+                            
+                            <div class="relative">
+                                {{ field }}
+                                {% if field.errors %}
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-rose-500">
+                                    <span class="material-symbols-rounded">error</span>
+                                </div>
+                                {% endif %}
+                            </div>
+
                             {% if field.help_text %}
-                                <p class="text-xs text-gray-400 mt-1 ms-1">{{ field.help_text }}</p>
+                                <p class="text-[10px] text-slate-400 mt-2 ml-1 font-medium italic opacity-70 leading-relaxed">{{ field.help_text }}</p>
                             {% endif %}
+                            
                             {% if field.errors %}
-                                <div class="alert alert-danger py-2 px-3 rounded-lg border-0 text-xs mt-2 d-flex align-items-center">
-                                    <span class="material-symbols-outlined text-sm me-2">error</span>
-                                    {{ field.errors }}
+                                <div class="mt-2 ml-1 space-y-1">
+                                    {% for error in field.errors %}
+                                    <p class="text-[10px] font-bold text-rose-500 flex items-center gap-1">
+                                        <span class="w-1 h-1 rounded-full bg-rose-500"></span>
+                                        {{ error }}
+                                    </p>
+                                    {% endfor %}
                                 </div>
                             {% endif %}
                         </div>
                         {% endfor %}
                     </div>
                     
-                    <div class="mt-5 d-flex gap-3">
-                        <button type="submit" class="btn btn-mui-primary flex-grow-1 py-3">
-                            <span class="material-symbols-outlined me-2">check_circle</span> Commit Changes
+                    <!-- Strategic Actions -->
+                    <div class="pt-8 border-t border-slate-50 flex flex-col sm:flex-row gap-4">
+                        <button type="submit" class="flex-1 bg-slate-900 text-white py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest shadow-2xl shadow-slate-300 hover:translate-y-[-2px] active:translate-y-0 transition-all flex items-center justify-center gap-2 group">
+                            <span class="material-symbols-rounded text-lg group-hover:scale-110 transition-transform">verified</span>
+                            Commit Changes
                         </button>
-                        <a href="javascript:history.back()" class="btn btn-light rounded-pill px-4 flex-grow-1 py-3 d-flex align-items-center justify-center text-gray-600 font-bold text-sm">
-                            <span class="material-symbols-outlined me-2">cancel</span> Cancel
+                        <a href="javascript:history.back()" class="flex-1 flex items-center justify-center gap-2 py-4 px-6 border-2 border-slate-100 rounded-2xl text-[11px] font-black text-slate-400 uppercase tracking-widest hover:bg-slate-50 hover:border-slate-200 transition-all">
+                            <span class="material-symbols-rounded text-lg">close</span>
+                            Discard
                         </a>
                     </div>
                 </form>
@@ -51,26 +75,48 @@
 </div>
 
 <style>
-    input[type="text"], input[type="email"], input[type="tel"], input[type="number"], input[type="password"], textarea, select, input[type="file"] {
-        display: block;
+    /* Premium Form Controls (Non-AI, Craftsmenship approach) */
+    input[type="text"], input[type="email"], input[type="tel"], input[type="number"], 
+    input[type="password"], textarea, select {
         width: 100%;
-        padding: 0.75rem 1rem;
-        font-size: 0.875rem;
-        font-weight: 400;
-        line-height: 1.5;
-        color: #475569;
         background-color: #f8fafc;
-        background-clip: padding-box;
-        border: 1px solid #e2e8f0;
-        border-radius: 0.5rem;
-        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        border: 2px solid #f1f5f9;
+        border-radius: 1rem;
+        padding: 0.85rem 1.25rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #1e293b;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        outline: none;
     }
+
     input:focus, textarea:focus, select:focus {
-        background-color: #fff;
-        border-color: #1976d2;
-        outline: 0;
-        box-shadow: 0 0 0 4px rgba(25, 118, 210, 0.1);
+        background-color: #ffffff;
+        border-color: #0f766e;
+        box-shadow: 0 10px 15px -3px rgb(15 118 110 / 0.1);
+    }
+
+    input::placeholder { color: #cbd5e1; font-weight: 500; font-style: italic; }
+
+    /* Custom Switch / Checkbox Styling if present */
+    input[type="checkbox"] {
+        width: 1.25rem;
+        height: 1.25rem;
+        border-radius: 0.5rem;
+        border: 2px solid #e2e8f0;
+        accent-color: #0f766e;
+    }
+
+    /* File Input Polish */
+    input[type="file"] {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #64748b;
+        padding: 0.5rem;
+        background: #f1f5f9;
+        border-radius: 0.75rem;
+        border: 2px dashed #cbd5e1;
     }
 </style>
 {% endblock %}
-
